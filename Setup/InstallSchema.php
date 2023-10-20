@@ -1,0 +1,197 @@
+<?php
+
+namespace Kiliba\Connector\Setup;
+
+class InstallSchema implements \Magento\Framework\Setup\InstallSchemaInterface {
+
+    /**
+     * @var \Magento\Framework\App\ProductMetadataInterface
+     */
+    protected $_productMetadata;
+
+    public function __construct(
+        \Magento\Framework\App\ProductMetadataInterface $productMetadata
+    ) {
+        $this->_productMetadata = $productMetadata;
+    }
+
+    public function install(
+        \Magento\Framework\Setup\SchemaSetupInterface $setup,
+        \Magento\Framework\Setup\ModuleContextInterface $context
+    ) {
+        $installer = $setup;
+        $installer->startSetup();
+
+        if(version_compare($this->_productMetadata->getVersion(), '2.3', '<')) {
+            // kiliba_connector_log
+            if(!$installer->tableExists('kiliba_connector_log')) {
+                $table = $installer->getConnection()->newTable(
+                    $installer->getTable('kiliba_connector_log')
+                )
+                    ->addColumn(
+                        'log_id',
+                        \Magento\Framework\DB\Ddl\Table::TYPE_INTEGER,
+                        null,
+                        [
+                            'identity' => true,
+                            'nullable' => false,
+                            'primary'  => true,
+                            'unsigned' => true,
+                        ],
+                        'Log ID'
+                    )
+                    ->addColumn(
+                        'type',
+                        \Magento\Framework\DB\Ddl\Table::TYPE_TEXT,
+                        255,
+                        ['nullable' => false],
+                        'Log type'
+                    )
+                    ->addColumn(
+                        'process',
+                        \Magento\Framework\DB\Ddl\Table::TYPE_TEXT,
+                        255,
+                        ['nullable' => false],
+                        'Log process'
+                    )
+                    ->addColumn(
+                        'message',
+                        \Magento\Framework\DB\Ddl\Table::TYPE_TEXT,
+                        '64k',
+                        ['nullable' => false],
+                        'Log message'
+                    )
+                    ->addColumn(
+                        'date',
+                        \Magento\Framework\DB\Ddl\Table::TYPE_TIMESTAMP,
+                        null,
+                        ['nullable' => false, 'default' => \Magento\Framework\DB\Ddl\Table::TIMESTAMP_INIT],
+                        'Log date'
+                    )
+                    ->addColumn(
+                        'store_id',
+                        \Magento\Framework\DB\Ddl\Table::TYPE_SMALLINT,
+                        null,
+                        ['nullable' => false,'unsigned' => true],
+                        'Log store ID'
+                    )
+                    ->addForeignKey(
+                        $installer->getFkName('kiliba_connector_log', 'store_id', 'store', 'store_id'),
+                        'store_id',
+                        $installer->getTable('store'),
+                        'store_id',
+                        \Magento\Framework\DB\Ddl\Table::ACTION_CASCADE
+                    );
+                    
+                $installer->getConnection()->createTable($table);
+            }
+            
+            // kiliba_connector_visit
+            if(!$installer->tableExists('kiliba_connector_visit')) {
+                $table = $installer->getConnection()->newTable(
+                    $installer->getTable('kiliba_connector_visit')
+                )
+                    ->addColumn(
+                        'visit_id',
+                        \Magento\Framework\DB\Ddl\Table::TYPE_INTEGER,
+                        null,
+                        [
+                            'identity' => true,
+                            'nullable' => false,
+                            'primary'  => true,
+                            'unsigned' => true,
+                        ],
+                        'Visit ID'
+                    )
+                    ->addColumn(
+                        'content',
+                        \Magento\Framework\DB\Ddl\Table::TYPE_TEXT,
+                        '64k',
+                        ['nullable' => false],
+                        'Log type'
+                    )
+                    ->addColumn(
+                        'store_id',
+                        \Magento\Framework\DB\Ddl\Table::TYPE_SMALLINT,
+                        null,
+                        ['nullable' => false,'unsigned' => true],
+                        'Visit store'
+                    )
+                    ->addColumn(
+                        'created_at',
+                        \Magento\Framework\DB\Ddl\Table::TYPE_TIMESTAMP,
+                        null,
+                        ['nullable' => false, 'default' => \Magento\Framework\DB\Ddl\Table::TIMESTAMP_INIT],
+                        'Visit creation date'
+                    )
+                    ->addForeignKey(
+                        $installer->getFkName('kiliba_connector_visit', 'store_id', 'store', 'store_id'),
+                        'store_id',
+                        $installer->getTable('store'),
+                        'store_id',
+                        \Magento\Framework\DB\Ddl\Table::ACTION_CASCADE
+                    );
+                    
+                $installer->getConnection()->createTable($table);
+            }
+            
+            // kiliba_connector_deleteditem
+            if(!$installer->tableExists('kiliba_connector_deleteditem')) {
+                $table = $installer->getConnection()->newTable(
+                    $installer->getTable('kiliba_connector_deleteditem')
+                )
+                    ->addColumn(
+                        'deleteditem_id',
+                        \Magento\Framework\DB\Ddl\Table::TYPE_INTEGER,
+                        null,
+                        [
+                            'identity' => true,
+                            'nullable' => false,
+                            'primary'  => true,
+                            'unsigned' => true,
+                        ],
+                        'Delete item row ID'
+                    )
+                    ->addColumn(
+                        'entity_id',
+                        \Magento\Framework\DB\Ddl\Table::TYPE_INTEGER,
+                        null,
+                        ['nullable' => false],
+                        'Deleted item entity ID'
+                    )
+                    ->addColumn(
+                        'entity_type',
+                        \Magento\Framework\DB\Ddl\Table::TYPE_TEXT,
+                        30,
+                        ['nullable' => true],
+                        'Deleted item entity type'
+                    )
+                    ->addColumn(
+                        'store_id',
+                        \Magento\Framework\DB\Ddl\Table::TYPE_SMALLINT,
+                        null,
+                        ['nullable' => false,'unsigned' => true],
+                        'Deleted item store'
+                    )
+                    ->addColumn(
+                        'created_at',
+                        \Magento\Framework\DB\Ddl\Table::TYPE_TIMESTAMP,
+                        null,
+                        ['nullable' => false, 'default' => \Magento\Framework\DB\Ddl\Table::TIMESTAMP_INIT],
+                        'Deleted item creation date'
+                    )
+                    ->addForeignKey(
+                        $installer->getFkName('kiliba_connector_deleteditem', 'store_id', 'store', 'store_id'),
+                        'store_id',
+                        $installer->getTable('store'),
+                        'store_id',
+                        \Magento\Framework\DB\Ddl\Table::ACTION_CASCADE
+                    );
+                    
+                $installer->getConnection()->createTable($table);
+            }
+        }
+
+        $installer->endSetup();
+    }
+}

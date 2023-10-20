@@ -1,0 +1,34 @@
+<?xml version="1.0"?>
+<!--
+  ~   Copyright © 410 Gone (contact@410-gone.fr). All rights reserved.
+  ~   See LICENSE.txt for license details (http://opensource.org/licenses/osl-3.0.php).
+  ~
+  -->
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Config:etc/system_file.xsd">
+    <system>
+        <tab id="kiliba_tab" translate="label" sortOrder="50">
+            <label>Kiliba</label>
+        </tab>
+        <section id="kiliba" translate="label" sortOrder="10" showInDefault="1" showInWebsite="1" showInStore="1">
+            <label>Configure Connector</label>
+            <tab>kiliba_tab</tab>
+            <resource>Kiliba_Connector::all</resource>
+            <group id="info" translate="label" type="text" sortOrder="10" showInDefault="1" showInWebsite="0" showInStore="1">
+                <hide_in_single_store_mode>1</hide_in_single_store_mode>
+                <frontend_model>Kiliba\Connector\Block\Adminhtml\Info</frontend_model>
+            </group>
+            <group id="connector" translate="label" type="text" sortOrder="10" showInDefault="0" showInWebsite="1" showInStore="0">
+                <label>Connector</label>
+                <field id="client_id" translate="label comment" type="text" sortOrder="10" showInDefault="0" showInWebsite="1" showInStore="0">
+                    <label>Client Id</label>
+                    <backend_model>Kiliba\Connector\Model\Config\Backend\LinkAccountToKiliba</backend_model>
+                </field>
+                <field id="flux_token" translate="label comment" type="text" sortOrder="30" showInDefault="0" showInWebsite="1" showInStore="0">
+                    <label>Magento Api Token</label>
+                    <frontend_model>Kiliba\Connector\Block\Adminhtml\ReadonlyField</frontend_model>
+                    <backend_model>Kiliba\Connector\Model\Config\Backend\ReadonlyConfig</backend_model>
+                </field>
+            </group>
+        </section>
+    </system>
+</config>

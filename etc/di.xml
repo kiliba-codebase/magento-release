@@ -1,0 +1,102 @@
+<?xml version="1.0" ?>
+<!--
+  ~ Copyright © 410 Gone (contact@410-gone.fr). All rights reserved.
+  ~ See LICENSE.txt for license details (http://opensource.org/licenses/osl-3.0.php).
+-->
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:framework:ObjectManager/etc/config.xsd">
+    <preference for="Kiliba\Connector\Api\LogRepositoryInterface" type="Kiliba\Connector\Model\LogRepository"/>
+    <preference for="Kiliba\Connector\Api\Data\LogInterface" type="Kiliba\Connector\Model\Data\Log"/>
+    <preference for="Kiliba\Connector\Api\Data\LogSearchResultsInterface" type="Magento\Framework\Api\SearchResults"/>
+    <preference for="Kiliba\Connector\Api\VisitRepositoryInterface" type="Kiliba\Connector\Model\VisitRepository"/>
+	<preference for="Kiliba\Connector\Api\Data\VisitInterface" type="Kiliba\Connector\Model\Data\Visit"/>
+    <preference for="Kiliba\Connector\Api\Data\VisitSearchResultsInterface" type="Magento\Framework\Api\SearchResults"/>
+    <preference for="Kiliba\Connector\Api\DeletedItemRepositoryInterface" type="Kiliba\Connector\Model\DeletedItemRepository"/>
+    <preference for="Kiliba\Connector\Api\Data\DeletedItemInterface" type="Kiliba\Connector\Model\Data\DeletedItem"/>
+    <preference for="Kiliba\Connector\Api\Data\DeletedItemSearchResultsInterface" type="Magento\Framework\Api\SearchResults"/>
+
+    <!-- fix error occurred on magento cloud because class weren't generated -->
+    <type name="Kiliba\Connector\Model\Import\CustomerFactory" />
+    <type name="Kiliba\Connector\Model\Import\ProductFactory" />
+    <type name="Kiliba\Connector\Model\Import\OrderFactory" />
+    <type name="Kiliba\Connector\Model\Import\CountryFactory" />
+    <type name="Kiliba\Connector\Model\Import\QuoteFactory" />
+    <type name="Kiliba\Connector\Model\Import\VisitFactory" />
+    <type name="Kiliba\Connector\Model\Import\DeletedItemFactory" />
+    <type name="Kiliba\Connector\Model\Import\CategoryFactory" />
+    <type name="Kiliba\Connector\Model\Import\PriceRuleFactory" />
+    <type name="Kiliba\Connector\Model\Import\CouponFactory" />
+
+    <type name="Kiliba\Connector\Model\Import\FormatterResolver">
+        <arguments>
+            <argument name="formatterPool" xsi:type="array">
+                <item name="customer" xsi:type="string">Kiliba\Connector\Model\Import\CustomerFactory</item>
+                <item name="product" xsi:type="string">Kiliba\Connector\Model\Import\ProductFactory</item>
+                <item name="order" xsi:type="string">Kiliba\Connector\Model\Import\OrderFactory</item>
+                <item name="country" xsi:type="string">Kiliba\Connector\Model\Import\CountryFactory</item>
+                <item name="quote" xsi:type="string">Kiliba\Connector\Model\Import\QuoteFactory</item>
+                <item name="visit" xsi:type="string">Kiliba\Connector\Model\Import\VisitFactory</item>
+                <item name="deleted" xsi:type="string">Kiliba\Connector\Model\Import\DeletedItemFactory</item>
+                <item name="category" xsi:type="string">Kiliba\Connector\Model\Import\CategoryFactory</item>
+                <item name="priceRule" xsi:type="string">Kiliba\Connector\Model\Import\PriceRuleFactory</item>
+                <item name="coupon" xsi:type="string">Kiliba\Connector\Model\Import\CouponFactory</item>
+            </argument>
+        </arguments>
+    </type>
+
+    <type name="Magento\Customer\CustomerData\Customer">
+        <plugin name="add_customer_id" type="Kiliba\Connector\Plugin\AddCustomerId" sortOrder="1"/>
+    </type>
+
+    <type name="\Magento\Customer\Controller\Account\LoginPost">
+        <plugin name="record_visit_after_login" type="\Kiliba\Connector\Plugin\RecordVisitAfterLogin" sortOrder="1" />
+    </type>
+
+    <!-- Web Api -->
+    <preference for="Kiliba\Connector\Api\Module\CollectInterface" type="Kiliba\Connector\Model\Api\Collect"/>
+    <preference for="Kiliba\Connector\Api\Module\ConfigurationInterface" type="Kiliba\Connector\Model\Api\Configuration"/>
+    <preference for="Kiliba\Connector\Api\Module\LogInterface" type="Kiliba\Connector\Model\Api\Log"/>
+    <preference for="Kiliba\Connector\Api\Module\SyncInterface" type="Kiliba\Connector\Model\Api\Sync"/>
+    <preference for="Kiliba\Connector\Api\Module\DiscountInterface" type="Kiliba\Connector\Model\Api\Discount"/>
+
+    <!--  Admin grid  -->
+    <virtualType name="Kiliba\Connector\Model\ResourceModel\Log\Grid\Collection" type="Magento\Framework\View\Element\UiComponent\DataProvider\SearchResult">
+        <arguments>
+            <argument name="mainTable" xsi:type="string">kiliba_connector_log</argument>
+            <argument name="resourceModel" xsi:type="string">Kiliba\Connector\Model\ResourceModel\Log\Collection</argument>
+        </arguments>
+    </virtualType>
+    <type name="Magento\Framework\View\Element\UiComponent\DataProvider\CollectionFactory">
+        <arguments>
+            <argument name="collections" xsi:type="array">
+                <item name="kiliba_connector_log_listing_data_source" xsi:type="string">Kiliba\Connector\Model\ResourceModel\Log\Grid\Collection</item>
+            </argument>
+        </arguments>
+    </type>
+   
+    <virtualType name="Kiliba\Connector\Model\ResourceModel\Visit\Grid\Collection" type="Magento\Framework\View\Element\UiComponent\DataProvider\SearchResult">
+        <arguments>
+            <argument name="mainTable" xsi:type="string">kiliba_connector_visit</argument>
+            <argument name="resourceModel" xsi:type="string">Kiliba\Connector\Model\ResourceModel\Visit\Collection</argument>
+        </arguments>
+    </virtualType>
+    <type name="Magento\Framework\View\Element\UiComponent\DataProvider\CollectionFactory">
+        <arguments>
+            <argument name="collections" xsi:type="array">
+                <item name="kiliba_connector_visit_listing_data_source" xsi:type="string">Kiliba\Connector\Model\ResourceModel\Visit\Grid\Collection</item>
+            </argument>
+        </arguments>
+    </type>
+    <virtualType name="Kiliba\Connector\Model\ResourceModel\DeletedItem\Grid\Collection" type="Magento\Framework\View\Element\UiComponent\DataProvider\SearchResult">
+        <arguments>
+            <argument name="mainTable" xsi:type="string">kiliba_connector_deleteditem</argument>
+            <argument name="resourceModel" xsi:type="string">Kiliba\Connector\Model\ResourceModel\DeletedItem\Collection</argument>
+        </arguments>
+    </virtualType>
+    <type name="Magento\Framework\View\Element\UiComponent\DataProvider\CollectionFactory">
+        <arguments>
+            <argument name="collections" xsi:type="array">
+                <item name="kiliba_connector_deleteditem_listing_data_source" xsi:type="string">Kiliba\Connector\Model\ResourceModel\DeletedItem\Grid\Collection</item>
+            </argument>
+        </arguments>
+    </type>
+</config>

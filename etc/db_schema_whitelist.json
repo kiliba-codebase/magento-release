@@ -1,0 +1,41 @@
+{
+    "kiliba_connector_log": {
+        "column": {
+            "log_id": true,
+            "type": true,
+            "process": true,
+            "message": true,
+            "date": true,
+            "store_id": true
+        },
+        "constraint": {
+            "PRIMARY": true,
+            "KILIBA_CONNECTOR_LOG_STORE_ID_STORE_STORE_ID": true
+        }
+    },
+    "kiliba_connector_visit": {
+        "column": {
+            "visit_id": true,
+            "content": true,
+            "created_at": true,
+            "store_id": true
+        },
+        "constraint": {
+            "PRIMARY": true,
+            "KILIBA_CONNECTOR_VISIT_STORE_ID_STORE_STORE_ID": true
+        }
+    },
+    "kiliba_connector_deleteditem": {
+        "column": {
+            "deleteditem_id": true,
+            "entity_id": true,
+            "entity_type": true,
+            "store_id": true,
+            "created_at": true
+        },
+        "constraint": {
+            "PRIMARY": true,
+            "KILIBA_CONNECTOR_DELETEDITEM_STORE_ID_STORE_STORE_ID": true
+        }
+    }
+}

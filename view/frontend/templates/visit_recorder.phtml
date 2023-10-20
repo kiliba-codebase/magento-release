@@ -1,0 +1,32 @@
+<?php
+/*
+ * Copyright © Kiliba. All rights reserved.
+ */
+/** @var \Kiliba\Connector\Block\VisitRecorder $block */
+$productId = $block->getProductId();
+$categoryId = $block->getCategoryId();
+$storeId = $block->getStoreId();
+?>
+
+<script>
+    require(
+    [
+        'jquery',
+        'visitRecorder',
+        'mage/cookies',
+        'domReady!'
+    ], function ($, visitRecorder) {
+        var url = window.location.href;
+        var productId = '<?= /* @noEscape */ $productId ?>';
+        var categoryId = '<?= /* @noEscape */ $categoryId ?>';
+        var storeId = '<?= /* @noEscape */ $storeId ?>';
+
+        visitRecorder({
+            "url": url,
+            "productId": productId,
+            "categoryId": categoryId,
+            "storeId": storeId,
+            "formKey": $.mage.cookies.get('form_key'),
+        });
+    });
+</script>

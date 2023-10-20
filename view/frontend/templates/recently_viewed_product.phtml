@@ -1,0 +1,15 @@
+<script>
+    require(
+        [
+            'jquery',
+            'mage/cookies',
+            'domReady!'
+        ], function ($) {
+            var recentlyViewedProducts = localStorage.getItem("recently_viewed_product");
+            var date = new Date();
+            date.setTime(date.getTime()+(10*60*1000)); // cookie lifetime 10 minutes
+            $.mage.cookies.set("kiliba_recent", recentlyViewedProducts, {
+                expires: date
+            });
+        });
+</script>

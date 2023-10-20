@@ -1,0 +1,66 @@
+<?xml version="1.0"?>
+<!--
+  ~ Copyright © 410 Gone (contact@410-gone.fr). All rights reserved.
+  ~ See LICENSE.txt for license details (http://opensource.org/licenses/osl-3.0.php).
+  -->
+<routes xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Webapi:etc/webapi.xsd">
+    <route url="/V1/kiliba-connector/debug/" method="POST">
+        <service class="Kiliba\Connector\Api\Module\ConfigurationInterface" method="getConfigValue"/>
+        <resources>
+            <resource ref="anonymous" />
+        </resources>
+    </route>
+    <route url="/V1/kiliba-connector/setConfiguration/" method="POST">
+        <service class="Kiliba\Connector\Api\Module\ConfigurationInterface" method="setConfigValue"/>
+        <resources>
+            <resource ref="anonymous" />
+        </resources>
+    </route>
+
+    <route url="/V1/kiliba-connector/getLog/" method="POST">
+        <service class="Kiliba\Connector\Api\Module\LogInterface" method="getLogs"/>
+        <resources>
+            <resource ref="anonymous" />
+        </resources>
+    </route>
+    
+    <route url="/V1/kiliba-connector/clearLog/" method="POST">
+        <service class="Kiliba\Connector\Api\Module\LogInterface" method="clearLogs"/>
+        <resources>
+            <resource ref="anonymous" />
+        </resources>
+    </route>
+
+    <route url="/V1/kiliba-connector/pullDatas/" method="POST">
+        <service class="Kiliba\Connector\Api\Module\CollectInterface" method="pullDatas"/>
+        <resources>
+            <resource ref="anonymous" />
+        </resources>
+    </route>
+    <route url="/V1/kiliba-connector/pullIds/" method="POST">
+        <service class="Kiliba\Connector\Api\Module\CollectInterface" method="pullIds"/>
+        <resources>
+            <resource ref="anonymous" />
+        </resources>
+    </route>
+
+    <route url="/V1/kiliba-connector/createPromoCode/" method="POST">
+        <service class="Kiliba\Connector\Api\Module\DiscountInterface" method="createMagentoDiscountCode"/>
+        <resources>
+            <resource ref="anonymous" />
+        </resources>
+    </route>
+    <!-- GET to be same of prestashop module -->
+    <route url="/V1/kiliba-connector/deletePromoCode/" method="GET">
+        <service class="Kiliba\Connector\Api\Module\DiscountInterface" method="deleteMagentoDiscountCode"/>
+        <resources>
+            <resource ref="anonymous" />
+        </resources>
+    </route>
+    <route url="/V1/kiliba-connector/purgePromoCode/" method="GET">
+        <service class="Kiliba\Connector\Api\Module\DiscountInterface" method="purgeMagentoDiscountCode"/>
+        <resources>
+            <resource ref="anonymous" />
+        </resources>
+    </route>
+</routes>

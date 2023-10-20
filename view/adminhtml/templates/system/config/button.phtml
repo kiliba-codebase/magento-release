@@ -1,0 +1,12 @@
+<script>
+    require([
+        'jquery',
+        'prototype',
+    ], function($){
+        $('#<?= $block->id ?>').click(function () {
+             window.location = '<?=$block->getAjaxUrl()?>';
+        });
+    });
+</script>
+
+<?= $block->getButtonHtml() ?>

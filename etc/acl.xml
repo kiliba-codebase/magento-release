@@ -1,0 +1,32 @@
+<?xml version="1.0" ?>
+<!--
+  ~ Copyright © 410 Gone (contact@410-gone.fr). All rights reserved.
+  ~ See LICENSE.txt for license details (http://opensource.org/licenses/osl-3.0.php).
+  -->
+
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:framework:Acl/etc/acl.xsd">
+    <acl>
+        <resources>
+            <resource id="Magento_Backend::admin">
+                <resource id="Kiliba_Connector::Log" title="Log" sortOrder="10">
+                    <resource id="Kiliba_Connector::Log_save" title="Save Log" sortOrder="10"/>
+                    <resource id="Kiliba_Connector::Log_delete" title="Delete Log" sortOrder="20"/>
+                    <resource id="Kiliba_Connector::Log_update" title="Update Log" sortOrder="30"/>
+                    <resource id="Kiliba_Connector::Log_view" title="View Log" sortOrder="40"/>
+                </resource>
+                <resource id="Kiliba_Connector::Visit" title="Visit" sortOrder="10">
+                    <resource id="Kiliba_Connector::Visit_save" title="Save Visit" sortOrder="10"/>
+                    <resource id="Kiliba_Connector::Visit_delete" title="Delete Visit" sortOrder="20"/>
+                    <resource id="Kiliba_Connector::Visit_update" title="Update Visit" sortOrder="30"/>
+                    <resource id="Kiliba_Connector::Visit_view" title="View Visit" sortOrder="40"/>
+                </resource>
+                <resource id="Kiliba_Connector::DeletedItem" title="DeletedItem" sortOrder="10">
+                    <resource id="Kiliba_Connector::DeletedItem_save" title="Save DeletedItem" sortOrder="10"/>
+                    <resource id="Kiliba_Connector::DeletedItem_delete" title="Delete DeletedItem" sortOrder="20"/>
+                    <resource id="Kiliba_Connector::DeletedItem_update" title="Update DeletedItem" sortOrder="30"/>
+                    <resource id="Kiliba_Connector::DeletedItem_view" title="View DeletedItem" sortOrder="40"/>
+                </resource>
+            </resource>
+        </resources>
+    </acl>
+</config>

@@ -1,0 +1,52 @@
+<?xml version="1.0"?>
+<!--
+  ~   Copyright © 410 Gone (contact@410-gone.fr). All rights reserved.
+  ~   See LICENSE.txt for license details (http://opensource.org/licenses/osl-3.0.php).
+  ~
+  -->
+<schema xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:framework:Setup/Declaration/Schema/etc/schema.xsd">
+    <table name="kiliba_connector_log">
+        <column xsi:type="int" name="log_id" padding="11" unsigned="true" nullable="false" identity="true"/>
+        <constraint xsi:type="primary" referenceId="PRIMARY">
+            <column name="log_id"/>
+        </constraint>
+        <column xsi:type="varchar" name="type" length="255" nullable="false"/>
+        <column xsi:type="varchar" name="process" length="255" nullable="false"/>
+        <column xsi:type="text" name="message" nullable="false"/>
+        <column xsi:type="timestamp" name="date" nullable="false" default="CURRENT_TIMESTAMP"/>
+        <column xsi:type="smallint" name="store_id" unsigned="true" nullable="false" identity="false"/>
+
+        <constraint xsi:type="foreign" referenceId="KILIBA_CONNECTOR_LOG_STORE_ID_STORE_STORE_ID"
+                    table="kiliba_connector_log" column="store_id" referenceTable="store" referenceColumn="store_id"
+                    onDelete="CASCADE"/>
+    </table>
+
+    <table name="kiliba_connector_visit" resource="default" engine="innodb">
+        <column xsi:type="int" name="visit_id" padding="10" unsigned="true" nullable="false" identity="true" />
+        <constraint xsi:type="primary" referenceId="PRIMARY">
+            <column name="visit_id"/>
+        </constraint>
+        <column name="content" nullable="false" xsi:type="text"/>
+        <column xsi:type="smallint" name="store_id" unsigned="true" nullable="false" identity="false"/>
+        <column name="created_at" nullable="false" xsi:type="timestamp" default="CURRENT_TIMESTAMP"/>
+
+        <constraint xsi:type="foreign" referenceId="KILIBA_CONNECTOR_VISIT_STORE_ID_STORE_STORE_ID"
+                    table="kiliba_connector_log" column="store_id" referenceTable="store" referenceColumn="store_id"
+                    onDelete="CASCADE"/>
+    </table>
+
+    <table name="kiliba_connector_deleteditem" resource="default" engine="innodb">
+        <column xsi:type="int" name="deleteditem_id" padding="10" unsigned="true" nullable="false" identity="true"/>
+        <constraint xsi:type="primary" referenceId="PRIMARY">
+            <column name="deleteditem_id"/>
+        </constraint>
+        <column name="entity_id" nullable="false" xsi:type="int" identity="false"/>
+        <column name="entity_type" nullable="true" xsi:type="varchar" length="30"/>
+        <column xsi:type="smallint" name="store_id" unsigned="true" nullable="false" identity="false"/>
+        <column name="created_at" nullable="false" xsi:type="timestamp" default="CURRENT_TIMESTAMP"/>
+
+        <constraint xsi:type="foreign" referenceId="KILIBA_CONNECTOR_DELETEDITEM_STORE_ID_STORE_STORE_ID"
+                    table="kiliba_connector_log" column="store_id" referenceTable="store" referenceColumn="store_id"
+                    onDelete="CASCADE"/>
+    </table>
+</schema>

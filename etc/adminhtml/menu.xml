@@ -1,0 +1,47 @@
+<?xml version="1.0" ?>
+<!--
+  ~ Copyright © 410 Gone (contact@410-gone.fr). All rights reserved.
+  ~ See LICENSE.txt for license details (http://opensource.org/licenses/osl-3.0.php).
+  -->
+
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Backend:etc/menu.xsd">
+    <menu>
+        <add id="Kiliba::top_level"
+             title="Kiliba"
+             module="Kiliba_Connector"
+             sortOrder="10"
+             resource="Magento_Backend::content"
+             translate="title"
+        />
+        <add id="Kiliba_Connector::kiliba_connector_log"
+             title="Log"
+             module="Kiliba_Connector"
+             sortOrder="20" resource="Magento_Backend::content"
+             parent="Kiliba::top_level"
+             action="kiliba_connector/log/index"
+             translate="title"
+        />
+        <add id="Kiliba_Connector::kiliba_connector_visit"
+             title="Visit"
+             module="Kiliba_Connector"
+             sortOrder="30"
+             resource="Magento_Backend::content"
+             parent="Kiliba::top_level"
+             action="kiliba_connector/visit/index"/>
+        <add id="Kiliba_Connector::kiliba_connector_deleteditem"
+             title="DeletedItem"
+             module="Kiliba_Connector"
+             sortOrder="40"
+             resource="Magento_Backend::content"
+             parent="Kiliba::top_level"
+             action="kiliba_connector/deleteditem/index"/>
+        <add id="Kiliba_Connector::kiliba_settings"
+             title="Settings"
+             module="Kiliba_Connector"
+             sortOrder="50" resource="Magento_Backend::content"
+             parent="Kiliba::top_level"
+             action="adminhtml/system_config/edit/section/kiliba"
+             translate="title"
+        />
+    </menu>
+</config>
