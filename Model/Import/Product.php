@@ -254,7 +254,13 @@ class Product extends AbstractModel
             }else{
                 $allowBackorders = $stockItemConfiguration->getBackorders() == 0 ? false : true;
             }
-            
+
+            $images = array();
+            foreach($product->getMediaGalleryImages() as $child){
+                $images[] = [
+                    "url" => (string) $child->getUrl()
+                ];
+            }
 
             $data = [
                 "id" => (string) $product->getId(),
@@ -294,6 +300,7 @@ class Product extends AbstractModel
                 "out_of_stock" => $this->_formatBoolean( empty($stockItemConfiguration)? 1 : !$stockItemConfiguration->getIsInStock()),
                 "qty_increment" => (string)  (empty($stockItemConfiguration)? 1 : $stockItemConfiguration->getQtyIncrements()),
                 "image_url" => (string) $imageUrl, // simple if exist else parent
+                "images" => $images,
                 "absolute_url" => (string) $url,
                 "relative_url" => (string) $urlKey,
                 "name" =>(string) $name,
@@ -348,6 +355,7 @@ class Product extends AbstractModel
             "out_of_stock" => "",
             "qty_increment" => "",
             "image_url" => "",
+            "images" => [],
             "absolute_url" => "",
             "relative_url" => "",
             "name" => "",
@@ -586,6 +594,17 @@ class Product extends AbstractModel
                 [
                     "name" => "image_url",
                     "type" => "string"
+                ],
+                [
+                    "name" => "images",
+                    "type" => "array",
+                    "items" => [
+                        "type" => "record",
+                        "fields" => [
+                            "name" => "url",
+                            "type" => "string"
+                        ]
+                    ]
                 ],
                 [
                     "name" => "absolute_url",

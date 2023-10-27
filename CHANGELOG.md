@@ -1,7 +1,9 @@
 # Changelog
 All notable changes to this project will be documented in this file.
 
-## [2.1.4] - 05/10/2023
+## [2.1.5] - 27/10/2023
+- Get all product images
+## [2.1.4] - 06/10/2023
 - Migrate to new Kiliba API (backend-api.production-api.kiliba.eu/external_api)
 ## [2.1.3] - 05/10/2023
 - List categories of products
