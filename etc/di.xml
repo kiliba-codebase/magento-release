@@ -14,6 +14,9 @@
     <preference for="Kiliba\Connector\Api\Data\DeletedItemInterface" type="Kiliba\Connector\Model\Data\DeletedItem"/>
     <preference for="Kiliba\Connector\Api\Data\DeletedItemSearchResultsInterface" type="Magento\Framework\Api\SearchResults"/>
 
+    <!-- Override -->
+    <preference for="Magento\Quote\Model\Quote" type="Kiliba\Connector\Model\Quote" />
+
     <!-- fix error occurred on magento cloud because class weren't generated -->
     <type name="Kiliba\Connector\Model\Import\CustomerFactory" />
     <type name="Kiliba\Connector\Model\Import\ProductFactory" />
@@ -49,6 +52,14 @@
 
     <type name="\Magento\Customer\Controller\Account\LoginPost">
         <plugin name="record_visit_after_login" type="\Kiliba\Connector\Plugin\RecordVisitAfterLogin" sortOrder="1" />
+    </type>
+
+    <!-- Guest tracking -->
+    <type name="Magento\Customer\Model\AccountManagement">
+        <plugin name="persist_quote_guest_checkout_email" type="Kiliba\Connector\Plugin\PersistGuestIdentityEmail"/>
+    </type>
+    <type name="Magento\Checkout\Model\ShippingInformationManagement">
+        <plugin name="persist_quote_guest_checkout_shipping" type="Kiliba\Connector\Plugin\PersistGuestIdentityShipping"/>
     </type>
 
     <!-- Web Api -->

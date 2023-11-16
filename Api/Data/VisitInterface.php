@@ -3,11 +3,12 @@
 
 namespace Kiliba\Connector\Api\Data;
 
-interface VisitInterface  extends \Magento\Framework\Api\ExtensibleDataInterface
+interface VisitInterface extends \Magento\Framework\Api\ExtensibleDataInterface
 {
 
     const VISIT_ID = 'visit_id';
     const CONTENT = 'content';
+    const CUSTOMER_KEY = 'customer_key';
     const STORE_ID = 'store_id';
     const CREATED_AT = 'created_at';
 
@@ -36,6 +37,19 @@ interface VisitInterface  extends \Magento\Framework\Api\ExtensibleDataInterface
      * @return \Kiliba\Connector\Api\Data\VisitInterface
      */
     public function setContent($content);
+
+    /**
+     * Get Kiliba Customer Key
+     * @return string|null
+     */
+    public function getCustomerKey();
+
+    /**
+     * Set Kiliba Customer Key
+     * @param string $customerKey
+     * @return \Kiliba\Connector\Api\Data\VisitInterface
+     */
+    public function setCustomerKey($customerKey);
 
     /**
      * Get store_id

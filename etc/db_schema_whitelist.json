@@ -17,6 +17,7 @@
         "column": {
             "visit_id": true,
             "content": true,
+            "customer_key": true,
             "created_at": true,
             "store_id": true
         },
@@ -36,6 +37,11 @@
         "constraint": {
             "PRIMARY": true,
             "KILIBA_CONNECTOR_DELETEDITEM_STORE_ID_STORE_STORE_ID": true
+        }
+    },
+    "quote": {
+        "column": {
+            "kiliba_connector_customer_key": true
         }
     }
 }

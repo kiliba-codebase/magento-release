@@ -47,6 +47,25 @@ class Visit extends \Magento\Framework\Api\AbstractExtensibleObject implements V
     }
 
     /**
+     * Get Kiliba Customer Key
+     * @return string|null
+     */
+    public function getCustomerKey()
+    {
+        return $this->_get(self::CUSTOMER_KEY);
+    }
+
+    /**
+     * Set Kiliba Customer Key
+     * @param string $customerKey
+     * @return \Kiliba\Connector\Api\Data\VisitInterface
+     */
+    public function setCustomerKey($customerKey)
+    {
+        return $this->setData(self::CUSTOMER_KEY, $customerKey);
+    }
+
+    /**
      * Retrieve existing extension attributes object or create a new one.
      * @return \Kiliba\Connector\Api\Data\VisitExtensionInterface|null
      */

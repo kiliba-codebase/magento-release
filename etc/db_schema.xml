@@ -27,11 +27,12 @@
             <column name="visit_id"/>
         </constraint>
         <column name="content" nullable="false" xsi:type="text"/>
+        <column xsi:type="text" name="customer_key" nullable="true" identity="false" comment="Kiliba customer/guest key"/>
         <column xsi:type="smallint" name="store_id" unsigned="true" nullable="false" identity="false"/>
         <column name="created_at" nullable="false" xsi:type="timestamp" default="CURRENT_TIMESTAMP"/>
 
         <constraint xsi:type="foreign" referenceId="KILIBA_CONNECTOR_VISIT_STORE_ID_STORE_STORE_ID"
-                    table="kiliba_connector_log" column="store_id" referenceTable="store" referenceColumn="store_id"
+                    table="kiliba_connector_visit" column="store_id" referenceTable="store" referenceColumn="store_id"
                     onDelete="CASCADE"/>
     </table>
 
@@ -46,7 +47,11 @@
         <column name="created_at" nullable="false" xsi:type="timestamp" default="CURRENT_TIMESTAMP"/>
 
         <constraint xsi:type="foreign" referenceId="KILIBA_CONNECTOR_DELETEDITEM_STORE_ID_STORE_STORE_ID"
-                    table="kiliba_connector_log" column="store_id" referenceTable="store" referenceColumn="store_id"
+                    table="kiliba_connector_deleteditem" column="store_id" referenceTable="store" referenceColumn="store_id"
                     onDelete="CASCADE"/>
+    </table>
+
+    <table name="quote" resource="checkout" engine="innodb" comment="Sales Flat Quote">
+        <column xsi:type="text" name="kiliba_connector_customer_key" nullable="true" identity="false" comment="Kiliba customer/guest key"/>
     </table>
 </schema>

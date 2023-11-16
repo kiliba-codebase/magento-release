@@ -8,9 +8,10 @@ namespace Kiliba\Connector\Controller\Record;
 use Magento\Framework\App\Action\Context;
 use Magento\Framework\App\ResponseInterface;
 use Magento\Framework\Data\Form\FormKey\Validator as FormKeyValidator;
-use Kiliba\Connector\Model\Import\Visit as ImportVisit;
 use Magento\Framework\Serialize\SerializerInterface;
 use Magento\Customer\Model\Session;
+use Kiliba\Connector\Model\Import\Visit as ImportVisit;
+use Kiliba\Connector\Helper\CookieHelper;
 
 class Visit extends \Magento\Framework\App\Action\Action
 {
@@ -35,18 +36,25 @@ class Visit extends \Magento\Framework\App\Action\Action
      */
     protected $_customer;
 
+    /**
+     * @var CookieHelper
+     */
+    protected $_cookieHelper;
+
     public function __construct(
         Context $context,
         FormKeyValidator $formKeyValidator,
         ImportVisit $visitImportModel,
         SerializerInterface $serializer,
-        Session $customer
+        Session $customer,
+        CookieHelper $cookieHelper
     ) {
         parent::__construct($context);
         $this->_formKeyValidator = $formKeyValidator;
         $this->_visitImportModel = $visitImportModel;
         $this->_serializer = $serializer;
         $this->_customer = $customer;
+        $this->_cookieHelper = $cookieHelper;
     }
 
     public function execute()
@@ -55,7 +63,7 @@ class Visit extends \Magento\Framework\App\Action\Action
             return;
         }
 
-        if(!$this->_customer->isLoggedIn()) {
+        if(!$this->_customer->isLoggedIn() && empty($this->_cookieHelper->getKilibaCustomerKeyCookie())) {
             return;
         }
 

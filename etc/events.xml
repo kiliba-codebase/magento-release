@@ -14,4 +14,10 @@
     <event name="salesrule_rule_delete_before">
         <observer name="record_priceRule_deletion" instance="Kiliba\Connector\Observer\PriceRule\RecordPriceRuleDeletion" />
     </event>
+    <event name="sales_quote_save_after">
+        <observer name="improve_quote_data" instance="Kiliba\Connector\Observer\Quote\SalesQuoteSaveAfterObserver" />
+    </event>
+    <event name="customer_login">
+        <observer name="persist_customer_info" instance="Kiliba\Connector\Observer\Customer\LogLastLoginAtObserver" />
+    </event>
 </config>

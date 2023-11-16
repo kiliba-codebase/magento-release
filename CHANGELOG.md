@@ -1,6 +1,8 @@
 # Changelog
 All notable changes to this project will be documented in this file.
 
+## [2.2.0] - 08/11/2023
+- Track guests for carts and visits
 ## [2.1.5] - 27/10/2023
 - Get all product images
 ## [2.1.4] - 06/10/2023

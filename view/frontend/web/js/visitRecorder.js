@@ -8,12 +8,12 @@ define(
         'mage/translate',
         'Magento_Customer/js/customer-data',
         'mage/url',
-        'domReady!'
+        'domReady!',
+        'mage/cookies'
     ],
     function (
         $, $t, customerData, url
     ) {
-
         $.widget('kiliba.visitRecorder', {
 
             options: {
@@ -41,6 +41,12 @@ define(
             _checkIfCustomerLoggedIn : function() {
                 var self = this;
                 var alreadySend = false;
+
+                var kilibaCustomerKey = $.mage.cookies.get("ki_cus");
+                if(kilibaCustomerKey) {
+                    alreadySend = true;
+                    self._callController();
+                }
 
                 customerData.get('customer').subscribe(function (customer) {
                     if((customer.id || customer.firstname) && !alreadySend) {

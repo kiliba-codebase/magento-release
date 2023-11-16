@@ -111,6 +111,13 @@ class InstallSchema implements \Magento\Framework\Setup\InstallSchemaInterface {
                         'Log type'
                     )
                     ->addColumn(
+                        'customer_key',
+                        \Magento\Framework\DB\Ddl\Table::TYPE_TEXT,
+                        null,
+                        ['nullable' => true, 'identity' => false],
+                        'Kiliba customer/guest key'
+                    )
+                    ->addColumn(
                         'store_id',
                         \Magento\Framework\DB\Ddl\Table::TYPE_SMALLINT,
                         null,
@@ -190,6 +197,18 @@ class InstallSchema implements \Magento\Framework\Setup\InstallSchemaInterface {
                     
                 $installer->getConnection()->createTable($table);
             }
+
+            // Update quote table
+            $installer->getConnection()->addColumn(
+                $installer->getTable('quote'),
+                'kiliba_connector_customer_key',
+                [
+                    'type' => \Magento\Framework\DB\Ddl\Table::TYPE_TEXT,
+                    'nullable' => true,
+                    'identity' => false,
+                    'comment' => 'Kiliba customer/guest key'
+                ]
+            );
         }
 
         $installer->endSetup();

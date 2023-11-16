@@ -16,6 +16,7 @@ use Magento\Framework\Exception\NoSuchEntityException;
 use Magento\Framework\Serialize\SerializerInterface;
 use Magento\Quote\Model\ResourceModel\Quote\CollectionFactory;
 use Magento\Quote\Api\CartRepositoryInterface;
+use Kiliba\Connector\Helper\CookieHelper;
 
 class Quote extends AbstractModel
 {
@@ -35,6 +36,11 @@ class Quote extends AbstractModel
      */
     protected $_productRepository;
 
+    /**
+     * @var CookieHelper
+     */
+    protected $_cookieHelper;
+
     protected $_coreTable = "quote";
 
     public function __construct(
@@ -47,7 +53,8 @@ class Quote extends AbstractModel
         ResourceConnection $resourceConnection,
         CollectionFactory $quoteCollectionFactory,
         CartRepositoryInterface $quoteRepository,
-        ProductRepositoryInterface $productRepository
+        ProductRepositoryInterface $productRepository,
+        CookieHelper $cookieHelper
     ) {
         parent::__construct(
             $configHelper,
@@ -61,6 +68,7 @@ class Quote extends AbstractModel
         $this->_quoteCollectionFactory = $quoteCollectionFactory;
         $this->_quoteRepository = $quoteRepository;
         $this->_productRepository = $productRepository;
+        $this->_cookieHelper = $cookieHelper;
     }
 
     /**
@@ -76,7 +84,7 @@ class Quote extends AbstractModel
     protected function getModelCollection($searchCriteria, $websiteId)
     {
         $searchCriteria
-            ->addFilter("store_id", $this->_configHelper->getWebsiteById($websiteId)->getStoreIds(), 'in');
+            ->addFilter("main_table.store_id", $this->_configHelper->getWebsiteById($websiteId)->getStoreIds(), 'in');
 
         return $this->_quoteRepository->getList($searchCriteria->create())->getItems();
     }
@@ -127,8 +135,29 @@ class Quote extends AbstractModel
                 }
             }
 
+            $customer_email = $quote->getCustomerEmail();
+            $customer_email_type = "logged_customer_email";
+            try {
+                // If quote has no logged customer found, check if from guest with specified email
+                if(empty($customer_email)) {
+                    $customer_email = $quote->getBillingAddress()->getEmail();
+                    $customer_email_type = "guest_customer_email";
+                }
+                // If no guest customer found, try to read kiliba customer from tracker
+                if(empty($customer_email)) {
+                    $customer_email = $this->_cookieHelper->getCustomerEmailViaKilibaCustomerKey($quote->getKilibaCustomerKey());
+                    $customer_email_type = "tracker_customer_email";
+                }
+                // No information found for this quote
+                if(empty($customer_email)) {
+                    $customer_email_type = "";
+                }
+            } catch (\Exception $e) {}
+
             $data = [
                 "id" => (string)$quote->getId(),
+                "customer_email" => (string)$customer_email,
+                "customer_email_type" => (string)$customer_email_type,
                 "id_shop_group" => (string)$websiteId,
                 "id_shop" => (string)$quote->getStoreId(),
                 "id_customer" => (string)$quote->getCustomerId(),
@@ -205,6 +234,14 @@ class Quote extends AbstractModel
             "fields" => [
                 [
                     "name" => "id",
+                    "type" => "string"
+                ],
+                [
+                    "name" => "customer_email",
+                    "type" => "string"
+                ],
+                [
+                    "name" => "customer_email_type",
                     "type" => "string"
                 ],
                 [

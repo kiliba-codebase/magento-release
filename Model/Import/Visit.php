@@ -12,10 +12,13 @@ use Kiliba\Connector\Helper\ConfigHelper;
 use Kiliba\Connector\Helper\FormatterHelper;
 use Kiliba\Connector\Helper\KilibaCaller;
 use Kiliba\Connector\Helper\KilibaLogger;
+use Kiliba\Connector\Helper\CookieHelper;
+use Magento\Customer\Model\ResourceModel\CustomerRepository;
 use Magento\Framework\Api\SearchCriteriaBuilder;
 use Magento\Framework\App\ResourceConnection;
 use Magento\Framework\Exception\LocalizedException;
 use Magento\Framework\Serialize\SerializerInterface;
+use Magento\Framework\Exception\NoSuchEntityException;
 
 class Visit extends AbstractModel
 {
@@ -29,6 +32,16 @@ class Visit extends AbstractModel
      */
     protected $_visitRepository;
 
+    /**
+     * @var CookieHelper
+     */
+    protected $_cookieHelper;
+
+    /**
+     * @var CustomerRepository
+     */
+    protected $_customerRepository;
+
     protected $_coreTable = "kiliba_connector_visit";
 
     public function __construct(
@@ -40,7 +53,9 @@ class Visit extends AbstractModel
         SearchCriteriaBuilder $searchCriteriaBuilder,
         ResourceConnection $resourceConnection,
         VisitInterfaceFactory $dataVisitFactory,
-        VisitRepositoryInterface $visitRepository
+        VisitRepositoryInterface $visitRepository,
+        CookieHelper $cookieHelper,
+        CustomerRepository $customerRepository
     ) {
         parent::__construct(
             $configHelper,
@@ -53,6 +68,8 @@ class Visit extends AbstractModel
         );
         $this->_dataVisitFactory = $dataVisitFactory;
         $this->_visitRepository = $visitRepository;
+        $this->_cookieHelper = $cookieHelper;
+        $this->_customerRepository = $customerRepository;
     }
 
 
@@ -68,9 +85,19 @@ class Visit extends AbstractModel
     {
         $visitsData = [];
         foreach ($collection as $visit) {
-            if (!empty($visit->getContent())) {
-                $visitsData[] = $this->formatData($visit->getContent(), $websiteId);
+            try {
+                if (!empty($visit->getContent())) {
+                    $visitsData[] = $this->formatData($visit, $websiteId);
+                }
+            } catch (\Exception $e) {
+                $this->_kilibaLogger->addLog(
+                    KilibaLogger::LOG_TYPE_ERROR,
+                    "Format visit data, id = " . $visit->getVisitId(),
+                    $e->getMessage(),
+                    $websiteId
+                );
             }
+            
         }
 
         return $visitsData;
@@ -91,8 +118,11 @@ class Visit extends AbstractModel
         $websiteId = $website->getId();
         if (!empty($this->_configHelper->getClientId($websiteId))) {
             /** @var VisitInterface $visit */
-            $visit = $this->_dataVisitFactory->create();
-            $visit->setContent($content)->setStoreId($storeId);
+            $visit = $this->_dataVisitFactory
+                ->create()
+                ->setContent($content)
+                ->setCustomerKey($this->_cookieHelper->getKilibaCustomerKeyCookie())
+                ->setStoreId($storeId);
             try {
                 $this->_visitRepository->save($visit);
             } catch (LocalizedException $e) {
@@ -101,7 +131,7 @@ class Visit extends AbstractModel
             $this->_kilibaLogger->addLog(
                 KilibaLogger::LOG_TYPE_ERROR,
                 __FUNCTION__,
-                "Couldn't find website linked to store : " . $storeId,
+                "Unable to record visit, website of store " . $storeId . " is not connected to Kiliba",
                 $websiteId
             );
         }
@@ -193,13 +223,35 @@ class Visit extends AbstractModel
     }
 
     /**
-     * @param string $data
+     * @param VisitInterface $visit
      * @param $websiteId
      * @return array[]
      */
-    public function formatData($data, $websiteId)
+    public function formatData($visit, $websiteId)
     {
-        $data = $this->_serializer->unserialize($data);
+        $content = $this->_serializer->unserialize($visit->getContent());
+
+        $customer_email = "";
+        // Get customer email from user in database based on its ID
+        if(isset($content["id_customer"]) && !empty($content["id_customer"])) {
+            try {
+                $customer = $this->_customerRepository->getById($content["id_customer"]);
+                $customer_email = $customer->getEmail();
+            } catch (NoSuchEntityException $e) {}
+        }
+        // Get customer email with Kiliba customer key (from ki_cus cookie)
+        if(empty($customer_email) && !empty($visit->getCustomerKey())) {
+            $customer_email = $this->_cookieHelper->getCustomerEmailViaKilibaCustomerKey($visit->getCustomerKey());
+        }
+
+        $data = [
+            "url" => (string)$content["url"],
+            "id_customer" => (string)$content["id_customer"],
+            "customer_email" => (string)$customer_email,
+            "date" => (string)$content["date"],
+            "id_product" => (string)$content["id_product"],
+            "id_category" => (string)$content["id_category"]
+        ];
 
         return $data;
     }
@@ -219,6 +271,10 @@ class Visit extends AbstractModel
                 ],
                 [
                     "name" => "id_customer",
+                    "type" => "string"
+                ],
+                [
+                    "name" => "customer_email",
                     "type" => "string"
                 ],
                 [
