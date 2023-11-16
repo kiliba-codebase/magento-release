@@ -114,7 +114,7 @@ class InstallSchema implements \Magento\Framework\Setup\InstallSchemaInterface {
                         'customer_key',
                         \Magento\Framework\DB\Ddl\Table::TYPE_TEXT,
                         null,
-                        ['nullable' => true, 'identity' => false],
+                        ['nullable' => true],
                         'Kiliba customer/guest key'
                     )
                     ->addColumn(
@@ -205,7 +205,6 @@ class InstallSchema implements \Magento\Framework\Setup\InstallSchemaInterface {
                 [
                     'type' => \Magento\Framework\DB\Ddl\Table::TYPE_TEXT,
                     'nullable' => true,
-                    'identity' => false,
                     'comment' => 'Kiliba customer/guest key'
                 ]
             );

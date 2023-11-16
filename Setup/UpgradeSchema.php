@@ -32,7 +32,6 @@ class UpgradeSchema implements UpgradeSchemaInterface
                 [
                     'type' => \Magento\Framework\DB\Ddl\Table::TYPE_TEXT,
                     'nullable' => true,
-                    'identity' => false,
                     'comment' => 'Kiliba customer/guest key'
                 ]
             );
@@ -43,7 +42,6 @@ class UpgradeSchema implements UpgradeSchemaInterface
                 [
                     'type' => \Magento\Framework\DB\Ddl\Table::TYPE_TEXT,
                     'nullable' => true,
-                    'identity' => false,
                     'comment' => 'Kiliba customer/guest key'
                 ]
             );

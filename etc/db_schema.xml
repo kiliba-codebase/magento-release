@@ -27,7 +27,7 @@
             <column name="visit_id"/>
         </constraint>
         <column name="content" nullable="false" xsi:type="text"/>
-        <column xsi:type="text" name="customer_key" nullable="true" identity="false" comment="Kiliba customer/guest key"/>
+        <column xsi:type="text" name="customer_key" nullable="true" comment="Kiliba customer/guest key"/>
         <column xsi:type="smallint" name="store_id" unsigned="true" nullable="false" identity="false"/>
         <column name="created_at" nullable="false" xsi:type="timestamp" default="CURRENT_TIMESTAMP"/>
 
@@ -52,6 +52,6 @@
     </table>
 
     <table name="quote" resource="checkout" engine="innodb" comment="Sales Flat Quote">
-        <column xsi:type="text" name="kiliba_connector_customer_key" nullable="true" identity="false" comment="Kiliba customer/guest key"/>
+        <column xsi:type="text" name="kiliba_connector_customer_key" nullable="true" comment="Kiliba customer/guest key"/>
     </table>
 </schema>
