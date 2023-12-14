@@ -271,10 +271,10 @@ class Product extends AbstractModel
                     $salableQuantityData = $this->_getSalableQuantityDataBySku->execute($product->getSku());
                     foreach($salableQuantityData as $sqty) {
                         $salableQuantity[] = [
-                            "stock_id" => (string) $sqty["stock_id"],
-                            "stock_name" => (string) $sqty["stock_name"],
-                            "qty" => (string) $sqty["qty"],
-                            "manage_stock" => $this->_formatBoolean($sqty["manage_stock"])
+                            "stock_id" => (string) (isset($sqty["stock_id"]) ? $sqty["stock_id"] : ""),
+                            "stock_name" => (string) ($sqty["stock_name"] ? $sqty["stock_name"] : ""),
+                            "qty" => (string) (isset($sqty["qty"]) ? $sqty["qty"] : ""),
+                            "manage_stock" => (string) (isset($sqty["manage_stock"]) ? $this->_formatBoolean($sqty["manage_stock"]) : "")
                         ];
                     }
                 }
