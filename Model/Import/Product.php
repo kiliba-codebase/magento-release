@@ -18,6 +18,7 @@ use Magento\CatalogInventory\Model\Stock\StockItemRepository;
 use Magento\CatalogUrlRewrite\Model\ProductUrlPathGenerator;
 use Magento\ConfigurableProduct\Model\Product\Type\Configurable;
 use Magento\CatalogInventory\Api\StockItemCriteriaInterfaceFactory;
+use Magento\Framework\ObjectManagerInterface;
 use Magento\Framework\Api\SearchCriteriaBuilder;
 use Magento\Framework\App\ResourceConnection;
 use Magento\Framework\Exception\NoSuchEntityException;
@@ -73,6 +74,16 @@ class Product extends AbstractModel
      */
     private $_stockConfiguration;
 
+    /**
+     * @var ObjectManagerInterface
+     */
+    private $_objectManager;
+
+    /**
+     * @var \Magento\InventorySalesAdminUi\Model\GetSalableQuantityDataBySku
+     */
+    private $_getSalableQuantityDataBySku;
+
     protected $_coreTable = "catalog_product_entity";
 
     // store data
@@ -97,7 +108,8 @@ class Product extends AbstractModel
         Configurable $configurable,
         StoreManagerInterface $storeManager,
         StockItemCriteriaInterfaceFactory $criteriaInterfaceFactory,
-        StockConfigurationInterface $stockConfiguration
+        StockConfigurationInterface $stockConfiguration,
+        ObjectManagerInterface $objectManager
     ) {
         parent::__construct(
             $configHelper,
@@ -116,6 +128,11 @@ class Product extends AbstractModel
         $this->_storeManager = $storeManager;
         $this->_criteriaInterfaceFactory = $criteriaInterfaceFactory;
         $this->_stockConfiguration = $stockConfiguration;
+        $this->_objectManager = $objectManager;
+
+        try {
+            $this->_getSalableQuantityDataBySku = $this->_objectManager->create("Magento\InventorySalesAdminUi\Model\GetSalableQuantityDataBySku");
+        } catch(\Exception $e) {}
     }
 
     /**
@@ -248,6 +265,21 @@ class Product extends AbstractModel
                 $imageUrl = $this->_mediaUrl[$websiteId] . "catalog/product" . $image;
             }
 
+            $salableQuantity = [];
+            try {
+                if($this->_getSalableQuantityDataBySku) {
+                    $salableQuantityData = $this->_getSalableQuantityDataBySku->execute($product->getSku());
+                    foreach($salableQuantityData as $sqty) {
+                        $salableQuantity[] = [
+                            "stock_id" => (string) $sqty["stock_id"],
+                            "stock_name" => (string) $sqty["stock_name"],
+                            "qty" => (string) $sqty["qty"],
+                            "manage_stock" => $this->_formatBoolean($sqty["manage_stock"])
+                        ];
+                    }
+                }
+            } catch (\Exception $e) {}
+
             $stockItemConfiguration = $this->getProductStockItem($product);
             if(empty($stockItemConfiguration)){
                 $allowBackorders = false;
@@ -296,6 +328,7 @@ class Product extends AbstractModel
                 "date_add" => (string) $product->getCreatedAt(),
                 "date_update" => (string) $product->getUpdatedAt(),
                 "physical_quantity" => (string)  (empty($stockItemConfiguration)? -1 : $stockItemConfiguration->getQty()),
+                "salable_quantity" => $salableQuantity,
                 "depends_on_stock" => $this->_formatBoolean(empty($stockItemConfiguration)? 0 : $stockItemConfiguration->getManageStock()),
                 "out_of_stock" => $this->_formatBoolean( empty($stockItemConfiguration)? 1 : !$stockItemConfiguration->getIsInStock()),
                 "qty_increment" => (string)  (empty($stockItemConfiguration)? 1 : $stockItemConfiguration->getQtyIncrements()),
@@ -578,6 +611,19 @@ class Product extends AbstractModel
                 [
                     "name" => "physical_quantity",
                     "type" => "string"
+                ],
+                [
+                    "name" => "salable_quantity",
+                    "type" => "array",
+                    "items" => [
+                        "type" => "record",
+                        "fields" => [
+                            "stock_id" => "string",
+                            "stock_name" => "string",
+                            "qty" => "string",
+                            "manage_stock" => "string"
+                        ]
+                    ]
                 ],
                 [
                     "name" => "depends_on_stock",
