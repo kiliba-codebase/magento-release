@@ -179,7 +179,10 @@ class Collect extends AbstractApiAction implements CollectInterface
             "results" => $modelDatas,
             "memory_usage" => memory_get_peak_usage(),
             "memory_get_usage_alloc" => memory_get_usage(true),
-            "total_size" => $totalCount
+            "total_size" => $totalCount,
+            "model" => $model,
+            "limit" => $limit,
+            "offset" => $offset
         ]];
     }
 

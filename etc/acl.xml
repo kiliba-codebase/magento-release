@@ -8,6 +8,13 @@
     <acl>
         <resources>
             <resource id="Magento_Backend::admin">
+                <resource id="Magento_Backend::stores">
+                    <resource id="Magento_Backend::stores_settings">
+                        <resource id="Magento_Config::config">
+                            <resource id="Kiliba_Connector::all" title="Kiliba Config" sortOrder="10"/>
+                        </resource>
+                    </resource>
+                </resource>
                 <resource id="Kiliba_Connector::Log" title="Log" sortOrder="10">
                     <resource id="Kiliba_Connector::Log_save" title="Save Log" sortOrder="10"/>
                     <resource id="Kiliba_Connector::Log_delete" title="Delete Log" sortOrder="20"/>

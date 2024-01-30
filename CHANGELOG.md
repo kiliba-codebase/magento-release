@@ -1,6 +1,9 @@
 # Changelog
 All notable changes to this project will be documented in this file.
 
+## [2.2.1] - 30/01/2024
+- Add Kiliba config menu to ACL
+- Enhance properties returned by Collect::pullDatas() for custom plugins
 ## [2.2.1] - 14/12/2023
 - Handle multi sources salable quantity
 ## [2.2.0] - 08/11/2023
