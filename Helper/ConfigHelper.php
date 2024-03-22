@@ -269,13 +269,18 @@ class ConfigHelper extends \Magento\Framework\App\Helper\AbstractHelper
         $stores = array();
         foreach ($website->getStores() as $store) {
             $storeId = $store->getId();
+            $currency = $store->getCurrentCurrency();
             $stores[] = array(
                 "id" => $storeId,
                 "code" => $store->getCode(),
                 "name" => $store->getName(),
                 "baseUrl" => $store->getBaseUrl(),
                 "active" => $store->isActive(),
-                "lang" => $this->getStoreLocale($storeId)
+                "lang" => $this->getStoreLocale($storeId),
+                "currency" => array(
+                    "code" => $currency->getCurrencyCode(),
+                    "symbol" => $currency->getCurrencySymbol()
+                )
             );
         }
         return $stores;
@@ -288,9 +293,11 @@ class ConfigHelper extends \Magento\Framework\App\Helper\AbstractHelper
         }
         
         $website = $this->getWebsiteById($websiteId);
+        $defaultStore = $website->getDefaultStore();
         return array(
             "id" => $website->getId(),
             "name" => $website->getName(),
+            "defaultStore" => $defaultStore->getId(),
             "stores" => $this->getWebsiteStores($website)
         );
     }
