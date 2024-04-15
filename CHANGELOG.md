@@ -1,7 +1,11 @@
 # Changelog
 All notable changes to this project will be documented in this file.
 
-## [2.2.1] - 30/01/2024
+## [2.2.4] - 15/04/2024
+- Add promo code code to promo code label and description
+## [2.2.3] - 23/03/2024
+- Add currency to debug endpoint
+## [2.2.2] - 30/01/2024
 - Add Kiliba config menu to ACL
 - Enhance properties returned by Collect::pullDatas() for custom plugins
 ## [2.2.1] - 14/12/2023

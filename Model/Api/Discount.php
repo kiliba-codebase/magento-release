@@ -39,8 +39,8 @@ class Discount extends AbstractApiAction implements DiscountInterface
     const PARAM_DISCOUNT_PERCENT = "reduction_percent";
     const PARAM_MINIMUM_AMOUNT   = "minimum_amount"; // optional
 
-    const DISCOUNT_NAME = "Kiliba";
-    const DISCOUNT_DESCRIPTION = "Kiliba Cart rule";
+    const DISCOUNT_NAME_PREFIX = "Kiliba";
+    const DISCOUNT_DESCRIPTION_PREFIX = "Kiliba Cart rule";
 
     const CREATION_REQUIRED_PARAM = [
         self::PARAM_CODE,
@@ -251,7 +251,7 @@ class Discount extends AbstractApiAction implements DiscountInterface
         }
 
         $this->_searchCriteriaBuilder
-            ->addFilter("name", self::DISCOUNT_NAME)
+            ->addFilter("name", self::DISCOUNT_NAME_PREFIX."%", "like")
             ->addFilter("to_date", date("Y-m-d"), "lt");
 
         $inactivePromoRuleCollection = $this->_ruleRepository->getList($this->_searchCriteriaBuilder->create());
@@ -336,8 +336,8 @@ class Discount extends AbstractApiAction implements DiscountInterface
 
             /** @var RuleInterface $cartPriceRule */
             $cartPriceRule = $this->_ruleInterfaceFactory->create();
-            $cartPriceRule->setName(self::DISCOUNT_NAME)
-                ->setDescription(self::DISCOUNT_DESCRIPTION)
+            $cartPriceRule->setName(self::DISCOUNT_NAME_PREFIX." ".$code)
+                ->setDescription(self::DISCOUNT_DESCRIPTION_PREFIX." ".$code)
                 ->setCouponType(RuleInterface::COUPON_TYPE_SPECIFIC_COUPON)
                 ->setCustomerGroupIds($customerGroupIds)
                 ->setWebsiteIds([$websiteId])
