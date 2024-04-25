@@ -296,6 +296,7 @@ class Product extends AbstractModel
 
             $data = [
                 "id" => (string) $product->getId(),
+                "reference" => (string) $product->getSku(),
                 "id_shop_group" => (string) $websiteId,
                 "id_shop" => (string)$product->getStoreId(),
                 "id_attribute" => (string) $product->getAttributeSetId(),
@@ -362,6 +363,7 @@ class Product extends AbstractModel
     {
         $data = [
             "id" => $productId,
+            "reference" => "",
             "id_shop_group" => "",
             "id_shop" => $websiteId,
             "id_attribute" => "",
@@ -514,6 +516,10 @@ class Product extends AbstractModel
             "fields" => [
                 [
                     "name" => "id",
+                    "type" => "string"
+                ],
+                [
+                    "name" => "reference",
                     "type" => "string"
                 ],
                 [
