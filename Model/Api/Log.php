@@ -19,16 +19,12 @@ class Log extends AbstractApiAction implements LogInterface
      */
     public function getLogs()
     {
-        $result = $this->_checkToken();
-        if (!$result["success"]) {
-            return [$result];
+        $requestCheck = $this->_checkRequest();
+        if(!$requestCheck["success"]) {
+            return array($requestCheck);
         }
 
-        $websiteId = null;
-        $accountId = $this->_request->getParam("accountId");
-        if (!empty($accountId)) {
-            $websiteId = $this->_checkIfAccountIdLikedToMagento($accountId);
-        }
+        $websiteId = $requestCheck["websiteId"];
 
         $type = $this->_request->getParam("type") ?? null;
         $page = $this->_request->getParam("page") ?? null;
@@ -41,9 +37,9 @@ class Log extends AbstractApiAction implements LogInterface
      */
     public function clearLogs()
     {
-        $result = $this->_checkToken();
-        if (!$result["success"]) {
-            return [$result];
+        $requestCheck = $this->_checkRequest();
+        if(!$requestCheck["success"]) {
+            return array($requestCheck);
         }
 
         $date = $this->_request->getParam("date") ?? null;

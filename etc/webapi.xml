@@ -1,6 +1,6 @@
 <?xml version="1.0"?>
 <!--
-  ~ Copyright © 410 Gone (contact@410-gone.fr). All rights reserved.
+  ~ Copyright © Kiliba. All rights reserved.
   ~ See LICENSE.txt for license details (http://opensource.org/licenses/osl-3.0.php).
   -->
 <routes xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Webapi:etc/webapi.xsd">
@@ -10,8 +10,8 @@
             <resource ref="anonymous" />
         </resources>
     </route>
-    <route url="/V1/kiliba-connector/setConfiguration/" method="POST">
-        <service class="Kiliba\Connector\Api\Module\ConfigurationInterface" method="setConfigValue"/>
+    <route url="/V1/kiliba-connector/refreshToken/" method="POST">
+        <service class="Kiliba\Connector\Api\Module\ConfigurationInterface" method="refreshToken"/>
         <resources>
             <resource ref="anonymous" />
         </resources>

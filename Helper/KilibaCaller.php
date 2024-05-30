@@ -170,15 +170,16 @@ class KilibaCaller extends \Magento\Framework\App\Helper\AbstractHelper
                 $logoUrl = $this->getViewFileUrl('images/logo.svg');
             }
 
-            $magentoApiToken = hash('md5', rand());
-            // only one token for all magento kiliba account
-            if (empty($this->_configHelper->getConfigWithoutCache(ConfigHelper::XML_PATH_FLUX_TOKEN))) {
+            // Legacy: only one token for all magento kiliba account
+            // 2.2.6: Each website has its own token
+            $magentoApiToken = $this->_configHelper->getConfigWithoutCache(ConfigHelper::XML_PATH_FLUX_TOKEN, $websiteId);
+            if (empty($magentoApiToken)) {
+                $magentoApiToken = $this->_configHelper->generateToken();
                 $this->_configHelper->saveDataToCoreConfig(
                     ConfigHelper::XML_PATH_FLUX_TOKEN,
-                    $magentoApiToken
-                ); // will be used to call magento api
-            } else {
-                $magentoApiToken = $this->_configHelper->getConfigWithoutCache(ConfigHelper::XML_PATH_FLUX_TOKEN);
+                    $magentoApiToken,
+                    $websiteId
+                );
             }
 
             $storeLocale = $this->_configHelper->getStoreLocale($store->getId());

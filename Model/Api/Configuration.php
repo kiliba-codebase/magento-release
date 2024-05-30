@@ -83,77 +83,59 @@ class Configuration extends AbstractApiAction implements ConfigurationInterface
         $this->_logo = $logo;
     }
 
-
-    /**
-     * {@inheritdoc}
-     */
-    public function setConfigValue()
-    {
-        $result = $this->_checkToken();
-        if (!$result["success"]) {
-            return [$result];
-        }
-
-        $configuration = $this->_request->getParam("configuration");
-        $newValue = $this->_request->getParam("value");
-
-        if (
-            !$configuration
-            || (!$newValue && $newValue != "0")
-        ) {
-            $this->logOnMissingParam("'configuration' or/and 'value'");
-            $result = ["success" => false, "code" => self::ERROR_CODE_MISSING_PARAM];
-            return [$result];
-        }
-
-        if (!in_array($configuration, ConfigHelper::CONFIG_CHANGE_ALLOWED)) {
-            $result = ["success" => false, "code" => self::ERROR_CODE_WRONG_CONFIG_NAME];
-            return [$result];
-        }
-
-
-        if (ConfigHelper::CONFIG_SCOPE[$configuration] == ScopeInterface::SCOPE_WEBSITES) {
-            $accountId = $this->_request->getParam("accountId");
-            $return = $this->_getTargetedStore($accountId);
-            if (is_array($return)) {
-                return $return;
-            }
-            $websiteId = $return;
-        } else {
-            $websiteId = 0;
-        }
-
-        $this->_configHelper->saveDataToCoreConfig(
-            ConfigHelper::CONFIG_MAPPING[$configuration],
-            $newValue,
-            $websiteId
-        );
-
-        $result = ["success" => true];
-        return [$result];
-    }
-
     /**
      * {@inheritdoc}
      */
     public function getConfigValue()
     {
-        $result = $this->_checkToken();
-        if (!$result["success"]) {
-            return [$result];
+        $requestCheck = $this->_checkRequest();
+        if(!$requestCheck["success"]) {
+            return array($requestCheck);
         }
 
-        $configValue = [];
+        $accountId = $requestCheck["accountId"];
+        $websiteId = $requestCheck["websiteId"];
 
+        $website = $this->_configHelper->getWebsiteById($websiteId);
+        $defaultStore = $website->getDefaultStore();
+        $linkedWebsite = array(
+            "id" => $website->getId(),
+            "name" => $website->getName(),
+            "defaultStore" => $defaultStore->getId(),
+            "stores" => $this->_configHelper->getWebsiteStores($website)
+        );
+
+        $configValue = array();
         $configValue["version"] = $this->_getModuleVersion();
         $configValue["magento"] = $this->_productMetadata->getVersion();
         $configValue["edition"] = $this->_productMetadata->getEdition();
         $configValue["phpversion"] = phpversion();
         $configValue["isSingleStore"] = $this->_configHelper->isSingleStore();
-        $configValue["linkedWebsite"] = $this->_configHelper->getLinkedWebsite($this->_request->getParam("accountId"));
-        $configValue["accountId"] = $this->_request->getParam("accountId");
+        $configValue["linkedWebsite"] = $linkedWebsite;
+        $configValue["accountId"] = $accountId;
 
-        return [$configValue];
+        return array($configValue);
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function refreshToken() {
+        $requestCheck = $this->_checkRequest();
+        if(!$requestCheck["success"]) {
+            return array($requestCheck);
+        }
+
+        $websiteId = $requestCheck["websiteId"];
+        $newToken = $this->_configHelper->generateToken();
+
+        $this->_configHelper->saveDataToCoreConfig(
+            ConfigHelper::XML_PATH_FLUX_TOKEN,
+            $newToken,
+            $websiteId
+        );
+
+        return array($newToken);
     }
 
     protected function _getModuleVersion()

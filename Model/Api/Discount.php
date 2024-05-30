@@ -130,20 +130,13 @@ class Discount extends AbstractApiAction implements DiscountInterface
      */
     public function createMagentoDiscountCode()
     {
-        $result = $this->_checkToken();
-        if (!$result["success"]) {
-            $result["status"] = self::STATUS_ERROR;
-            return [$result];
+        $requestCheck = $this->_checkRequest();
+        if(!$requestCheck["success"]) {
+            $requestCheck["status"] = self::STATUS_ERROR;
+            return array($requestCheck);
         }
 
-        // get target website
-        $accountId = $this->_request->getParam("accountId");
-        $return = $this->_getTargetedStore($accountId);
-        if (is_array($return)) {
-            $result["status"] = self::STATUS_ERROR;
-            return $return;
-        }
-        $websiteId = $return;
+        $websiteId = $requestCheck["websiteId"];
         
         // check required parameters
         $params = $this->_request->getParams();
@@ -199,11 +192,13 @@ class Discount extends AbstractApiAction implements DiscountInterface
      * {@inheritdoc}
      */
     public function deleteMagentoDiscountCode() {
-        $result = $this->_checkToken();
-        if (!$result["success"]) {
-            $result["status"] = self::STATUS_ERROR;
-            return [$result];
+        $requestCheck = $this->_checkRequest();
+        if(!$requestCheck["success"]) {
+            $requestCheck["status"] = self::STATUS_ERROR;
+            return array($requestCheck);
         }
+
+        $websiteId = $requestCheck["websiteId"];
 
         $code = $this->_request->getParam(self::PARAM_CODE);
 
@@ -244,11 +239,13 @@ class Discount extends AbstractApiAction implements DiscountInterface
     }
 
     public function purgeMagentoDiscountCode() {
-        $result = $this->_checkToken();
-        if (!$result["success"]) {
-            $result["status"] = self::STATUS_ERROR;
-            return [$result];
+        $requestCheck = $this->_checkRequest();
+        if(!$requestCheck["success"]) {
+            $requestCheck["status"] = self::STATUS_ERROR;
+            return array($requestCheck);
         }
+
+        $websiteId = $requestCheck["websiteId"];
 
         $this->_searchCriteriaBuilder
             ->addFilter("name", self::DISCOUNT_NAME_PREFIX."%", "like")

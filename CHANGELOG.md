@@ -1,6 +1,9 @@
 # Changelog
 All notable changes to this project will be documented in this file.
 
+## [2.2.6] - 25/04/2024
+- Set token scope to website
+- Use stronger PHP methods for generating token
 ## [2.2.5] - 25/04/2024
 - Get products SKU
 ## [2.2.4] - 15/04/2024

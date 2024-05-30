@@ -17,7 +17,7 @@ class AbstractApiAction
     const ERROR_CODE_MISSING_PARAM              = 1;
     const ERROR_CODE_WRONG_TOKEN                = 2;
     const ERROR_CODE_WRONG_CONFIG_NAME          = 3;
-    const ERROR_CODE_NOT_KILIBA_STORE           = 4;
+    const ERROR_CODE_NOT_KILIBA_WEBSITE         = 4;
     const ERROR_CODE_INVALID_CRON_FORMAT        = 5;
     const ERROR_CODE_WRONG_ENTITY_TYPE          = 6;
     const ERROR_CODE_WRONG_ENTITY_ID            = 7;
@@ -84,24 +84,99 @@ class AbstractApiAction
     }
 
     /**
+     * Check current request for correct account ID and token
      * @return array
      */
-    protected function _checkToken()
+    protected function _checkRequest()
     {
         ini_set('memory_limit', '2G'); // see if add
 
-        if (!$this->_request->getParam("token")) {
-            $this->logOnMissingParam("'token'");
-            return ["success" => false, "code" => self::ERROR_CODE_MISSING_PARAM];
-        }
-        if (
-            $this->_request->getParam("token") !=
-            $this->_configHelper->getConfigWithoutCache(ConfigHelper::XML_PATH_FLUX_TOKEN)
-        ) {
-            return ["success" => false, "code" => self::ERROR_CODE_WRONG_TOKEN];
+        $accountId = $this->_request->getParam("accountId");
+        $token = $this->_request->getParam("token");
+
+        $websiteCheck = $this->_checkWebsite($accountId);
+        if(!$websiteCheck["success"]) {
+            return $websiteCheck;
         }
 
-        return ["success" => true];
+        $websiteId = $websiteCheck["websiteId"];
+        $tokenCheck = $this->_checkToken($websiteId, $token);
+        if(!$tokenCheck["success"]) {
+            return $tokenCheck;
+        }
+
+        return array(
+            "success" => true,
+            "accountId" => $accountId,
+            "token" => $token,
+            "websiteId" => $websiteId
+        );
+    }
+
+    /**
+     * Return website ID for given accountId
+     * @param string $accountId
+     * @return array
+     */
+    protected function _checkWebsite($accountId)
+    {
+        if (empty($accountId)) {
+            $this->logOnMissingParam("'accountId'");
+            return array(
+                "success" => false,
+                "code" => self::ERROR_CODE_MISSING_PARAM
+            );
+        }
+
+        $websiteId = $this->_checkIfAccountIdLikedToMagento($accountId);
+        if ($websiteId === false) {
+            return array(
+                "success" => false,
+                "code" => self::ERROR_CODE_NOT_KILIBA_WEBSITE
+            );
+        }
+
+        return array(
+            "success" => true,
+            "websiteId" => $websiteId
+        );
+    }
+
+    /**
+     * Check auth token for current Website
+     * @return array
+     */
+    protected function _checkToken($websiteId, $token)
+    {
+        ini_set('memory_limit', '2G'); // see if add
+
+        if(empty($token)) {
+            $this->logOnMissingParam("'token'");
+            return array(
+                "success" => false,
+                "code" => self::ERROR_CODE_MISSING_PARAM
+            );
+        }
+
+        $websiteToken = $this->_configHelper->getConfigWithoutCache(ConfigHelper::XML_PATH_FLUX_TOKEN, $websiteId);
+        $legacyToken = $this->_configHelper->getConfigWithoutCache(ConfigHelper::XML_PATH_FLUX_TOKEN);
+
+        if(
+            empty($websiteToken)
+                // Legacy (check global scope token)
+                ? $token !== $legacyToken
+                // 2.2.6 (check website scoped token)
+                : $token !== $websiteToken
+        ) {
+            return array(
+                "success" => false,
+                "code" => self::ERROR_CODE_WRONG_TOKEN
+            );
+        }
+
+        return array(
+            "success" => true
+        );
     }
 
     /**
@@ -114,27 +189,6 @@ class AbstractApiAction
             $this->_websiteId = $this->_configHelper->checkIfAccountIdLikedToMagento($accountId);
         }
         return $this->_websiteId;
-    }
-
-    /**
-     * Return website ID for given accountId
-     * Store wording is wrong and is a result of module migration from store to website
-     * @param string $accountId
-     * @return array|int
-     */
-    protected function _getTargetedStore($accountId)
-    {
-        if (empty($accountId)) {
-            $this->logOnMissingParam("'accountId'");
-            return [["success" => false, "code" => self::ERROR_CODE_MISSING_PARAM]];
-        }
-        $websiteId = $this->_checkIfAccountIdLikedToMagento($accountId);
-        if ($websiteId === false) {
-            $result = ["success" => false, "code" => self::ERROR_CODE_NOT_KILIBA_STORE];
-            return [$result];
-        }
-
-        return $websiteId;
     }
 
     protected function logOnMissingParam($param, $context = null)

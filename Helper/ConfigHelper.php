@@ -286,27 +286,26 @@ class ConfigHelper extends \Magento\Framework\App\Helper\AbstractHelper
         return $stores;
     }
 
-    public function getLinkedWebsite($accountId) {
-        $websiteId = $this->checkIfAccountIdLikedToMagento($accountId);
-        if(empty($websiteId)) {
-            return null;
-        }
-        
-        $website = $this->getWebsiteById($websiteId);
-        $defaultStore = $website->getDefaultStore();
-        return array(
-            "id" => $website->getId(),
-            "name" => $website->getName(),
-            "defaultStore" => $defaultStore->getId(),
-            "stores" => $this->getWebsiteStores($website)
-        );
-    }
-
     public function getWebsiteById($websiteId) {
         return $this->_websiteRepository->getById($websiteId);
     }
 
     public function getStoreById($storeId) {
         return $this->_storeRepository->getById($storeId);
+    }
+
+    /**
+     * Generate authentication token for Kiliba API
+     * Use stronger method by default
+     * Allow PHP back compatibility
+     */
+    public function generateToken() {
+        if(function_exists("random_bytes")) {
+            return bin2hex(random_bytes(32));
+        } else if(function_exists("openssl_random_pseudo_bytes")) {
+            return bin2hex(openssl_random_pseudo_bytes(32));
+        } else {
+            return hash("md5", rand()).hash("md5", rand());
+        }
     }
 }

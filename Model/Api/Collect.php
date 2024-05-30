@@ -61,18 +61,13 @@ class Collect extends AbstractApiAction implements CollectInterface
 
     public function pull($withData)
     {
-        $result = $this->_checkToken();
-        if (!$result["success"]) {
-            return [$result];
+        $requestCheck = $this->_checkRequest();
+        if(!$requestCheck["success"]) {
+            return array($requestCheck);
         }
 
-        $accountId = $this->_request->getParam("accountId");
-        $return = $this->_getTargetedStore($accountId);
-        if (is_array($return)) {
-            return $return;
-        }
-        $websiteId = $return;
-
+        $websiteId = $requestCheck["websiteId"];
+        
         $website = $this->_configHelper->getWebsiteById($websiteId);
         $store = $website->getDefaultStore();
         $this->_emulation->startEnvironmentEmulation($store->getId(), 'frontend');
