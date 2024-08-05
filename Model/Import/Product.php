@@ -130,9 +130,11 @@ class Product extends AbstractModel
         $this->_stockConfiguration = $stockConfiguration;
         $this->_objectManager = $objectManager;
 
-        try {
-            $this->_getSalableQuantityDataBySku = $this->_objectManager->create("Magento\InventorySalesAdminUi\Model\GetSalableQuantityDataBySku");
-        } catch(\Exception $e) {}
+        if(class_exists("Magento\InventorySalesAdminUi\Model\GetSalableQuantityDataBySku")) {
+            try {
+                $this->_getSalableQuantityDataBySku = $this->_objectManager->create("Magento\InventorySalesAdminUi\Model\GetSalableQuantityDataBySku");
+            } catch(\Exception $e) {}
+        }
     }
 
     /**
