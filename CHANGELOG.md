@@ -1,6 +1,9 @@
 # Changelog
 All notable changes to this project will be documented in this file.
 
+## [2.2.8] - 07/08/2024
+- Add security when instantiating salable quantity class (check MSI enabled)
+- Force products order by ID
 ## [2.2.7] - 05/08/2024
 - Add security when instantiating salable quantity class
 ## [2.2.6] - 30/05/2024

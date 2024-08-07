@@ -20,9 +20,11 @@ use Magento\ConfigurableProduct\Model\Product\Type\Configurable;
 use Magento\CatalogInventory\Api\StockItemCriteriaInterfaceFactory;
 use Magento\Framework\ObjectManagerInterface;
 use Magento\Framework\Api\SearchCriteriaBuilder;
+use Magento\Framework\Api\SortOrderBuilder;
 use Magento\Framework\App\ResourceConnection;
 use Magento\Framework\Exception\NoSuchEntityException;
 use Magento\Framework\Serialize\SerializerInterface;
+use Magento\Framework\Module\Manager;
 use Magento\Store\Model\StoreManagerInterface;
 
 class Product extends AbstractModel
@@ -68,6 +70,11 @@ class Product extends AbstractModel
      * @var StockItemCriteriaInterfaceFactory
      */
     private $_criteriaInterfaceFactory;
+    
+    /**
+     * @var SortOrderBuilder
+     */
+    private $_sortOrderBuilder;
 
     /**
      * @var StockConfigurationInterface
@@ -78,6 +85,11 @@ class Product extends AbstractModel
      * @var ObjectManagerInterface
      */
     private $_objectManager;
+
+    /**
+     * @var Manager
+     */
+    protected $_moduleManager;
 
     /**
      * @var \Magento\InventorySalesAdminUi\Model\GetSalableQuantityDataBySku
@@ -100,6 +112,7 @@ class Product extends AbstractModel
         KilibaLogger $kilibaLogger,
         SerializerInterface $serializer,
         SearchCriteriaBuilder $searchCriteriaBuilder,
+        SortOrderBuilder $sortOrderBuilder,
         ResourceConnection $resourceConnection,
         ProductRepositoryInterface $productRepository,
         CollectionFactory $productCollectionFactory,
@@ -109,7 +122,8 @@ class Product extends AbstractModel
         StoreManagerInterface $storeManager,
         StockItemCriteriaInterfaceFactory $criteriaInterfaceFactory,
         StockConfigurationInterface $stockConfiguration,
-        ObjectManagerInterface $objectManager
+        ObjectManagerInterface $objectManager,
+        Manager $moduleManager
     ) {
         parent::__construct(
             $configHelper,
@@ -127,10 +141,13 @@ class Product extends AbstractModel
         $this->_configurable = $configurable;
         $this->_storeManager = $storeManager;
         $this->_criteriaInterfaceFactory = $criteriaInterfaceFactory;
+        $this->_sortOrderBuilder = $sortOrderBuilder;
         $this->_stockConfiguration = $stockConfiguration;
         $this->_objectManager = $objectManager;
+        $this->_moduleManager = $moduleManager;
 
-        if(class_exists("Magento\InventorySalesAdminUi\Model\GetSalableQuantityDataBySku")) {
+
+        if($this->_moduleManager->isEnabled('Magento_InventorySalesAdminUi')) {
             try {
                 $this->_getSalableQuantityDataBySku = $this->_objectManager->create("Magento\InventorySalesAdminUi\Model\GetSalableQuantityDataBySku");
             } catch(\Exception $e) {}
@@ -166,9 +183,12 @@ class Product extends AbstractModel
      */
     protected function getModelCollection($searchCriteria, $websiteId)
     {
+        $sortOrder = $this->_sortOrderBuilder->setField('entity_id')->setDirection('ASC')->create();
+
         $searchCriteria
             ->addFilter("website_id", $websiteId)
-            ->addFilter("type_id", self::PRODUCT_TYPE_SYNC, "in");
+            ->addFilter("type_id", self::PRODUCT_TYPE_SYNC, "in")
+            ->setSortOrders([$sortOrder]);
 
         return $this->_productRepository->getList($searchCriteria->create())->getItems();
     }
