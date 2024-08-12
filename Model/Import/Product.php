@@ -33,7 +33,8 @@ class Product extends AbstractModel
     const PRODUCT_TYPE_SYNC = [
         \Magento\Catalog\Model\Product\Type::TYPE_SIMPLE,
         \Magento\Catalog\Model\Product\Type::TYPE_VIRTUAL,
-        \Magento\Downloadable\Model\Product\Type::TYPE_DOWNLOADABLE
+        \Magento\Downloadable\Model\Product\Type::TYPE_DOWNLOADABLE,
+        \Magento\Catalog\Model\Product\Type::TYPE_BUNDLE
     ];
 
     /**
@@ -474,6 +475,8 @@ class Product extends AbstractModel
 
         if (!empty($discountPrice) || !empty($tierPrice)) {
             $finalPrice = min(array_diff([$discountPrice, $tierPrice], [null])); // take smaller value but not null
+        } else {
+            $finalPrice = 0;
         }
 
         if ($withTax) {

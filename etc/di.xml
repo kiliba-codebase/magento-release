@@ -64,7 +64,12 @@
 
     <!-- Example for overriding Kiliba stocks data -->
     <!-- <type name="Kiliba\Connector\Model\Import\Product">
-        <plugin name="override_kiliba" type="Kiliba\Connector\Plugin\CustomStocks"/>
+        <plugin name="override_kiliba_stocks" type="Kiliba\Connector\Plugin\CustomStocks"/>
+    </type> -->
+
+    <!-- Example for overriding Kiliba products price -->
+    <!-- <type name="Kiliba\Connector\Model\Import\Product">
+        <plugin name="override_kiliba_prices" type="Kiliba\Connector\Plugin\CustomPrices"/>
     </type> -->
 
     <!-- Web Api -->

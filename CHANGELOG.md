@@ -1,6 +1,8 @@
 # Changelog
 All notable changes to this project will be documented in this file.
 
+## [2.2.9] - 12/08/2024
+- Add bundle products in products synchronization (requires plugin to custom prices)
 ## [2.2.8] - 07/08/2024
 - Add security when instantiating salable quantity class (check MSI enabled)
 - Force products order by ID
