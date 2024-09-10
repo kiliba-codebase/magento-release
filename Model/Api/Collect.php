@@ -82,7 +82,7 @@ class Collect extends AbstractApiAction implements CollectInterface
         }
 
         
-        $authorizedModels=['deleted_customer','deleted_product','product','visit','customer','country','order','quote','category','priceRule','coupon','deleted_priceRule'];
+        $authorizedModels=['deleted_customer','deleted_product','product','visit','customer','country','order','quote','category','priceRule','coupon','deleted_priceRule','customerGroup'];
         if (!in_array($model, $authorizedModels)) {
             $result = ["success" => false, "error" => "Unauthorized model"];
             return [$result];
@@ -94,8 +94,6 @@ class Collect extends AbstractApiAction implements CollectInterface
             $result = ["success" => false, "error" => "Error on missing model or limit or offset"];
             return [$result];
         }
-
-       
 
         /*if ($model == "customer") {
             // customer is actually filtered by website
@@ -112,7 +110,7 @@ class Collect extends AbstractApiAction implements CollectInterface
                     $formatterModel = $this->_formatterResolver->get("deleted");
                     $modelDatas = $formatterModel->getDeletedCollection(
                         "customer",
-                        $websiteId,
+                        $website,
                         $limit,
                         $offset,
                         $this->timestampToDate($createdAt),
@@ -124,7 +122,7 @@ class Collect extends AbstractApiAction implements CollectInterface
                     $formatterModel = $this->_formatterResolver->get("deleted");
                     $modelDatas = $formatterModel->getDeletedCollection(
                         "product",
-                        $websiteId,
+                        $website,
                         $limit,
                         $offset,
                         $this->timestampToDate($createdAt),
@@ -136,7 +134,7 @@ class Collect extends AbstractApiAction implements CollectInterface
                     $formatterModel = $this->_formatterResolver->get("deleted");
                     $modelDatas = $formatterModel->getDeletedCollection(
                         "priceRule",
-                        $websiteId,
+                        $website,
                         $limit,
                         $offset,
                         $this->timestampToDate($createdAt),
@@ -147,7 +145,7 @@ class Collect extends AbstractApiAction implements CollectInterface
                 default:
                     $formatterModel = $this->_formatterResolver->get($model);
                     $modelDatas = $formatterModel->getSyncCollection(
-                        $websiteId,
+                        $website,
                         $limit,
                         $offset,
                         $this->timestampToDate($createdAt),

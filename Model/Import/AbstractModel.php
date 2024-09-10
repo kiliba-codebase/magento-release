@@ -56,6 +56,9 @@ class AbstractModel
     protected $_coreTable = "store";
     protected $_filterScope = true;
 
+    // forwarded to child
+    protected $_website;
+
     public function __construct(
         ConfigHelper $configHelper,
         FormatterHelper $formatterHelper,
@@ -107,7 +110,10 @@ class AbstractModel
         return $connection->fetchOne($select);
     }
 
-    public function getSyncCollection($websiteId, $limit, $offset, $createdAt = null, $updatedAt = null, $withData = true) {
+    public function getSyncCollection($website, $limit, $offset, $createdAt = null, $updatedAt = null, $withData = true) {
+        $this->_website = $website;
+        $websiteId = $website->getId();
+
         $currentPage = intdiv($offset, $limit) + 1;
 
         $searchCriteria = $this->_searchCriterieBuilder

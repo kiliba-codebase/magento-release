@@ -317,6 +317,32 @@ class Product extends AbstractModel
                 ];
             }
 
+            $translatedNameMap = array();
+            $translatedDescriptionMap = array();
+            foreach($this->_website->getStores() as $store) {
+                $translatedStoreId = $store->getId();
+                $translatedStoreLocale = $this->_configHelper->getStoreLocale($translatedStoreId);
+
+                $translatedProductId = $productParent ? $productParent->getId() : $product->getId();
+                $translatedProduct = $this->_productRepository->getById($product->getId(), false, $translatedStoreId);
+
+                $translatedName = (string) $translatedProduct->getName();
+                $translatedDescription = (string) $translatedProduct->getDescription();
+
+                // fr_FR / fr_LU / de_DE
+                // $translatedNameMap[$translatedStoreLocale] = $translatedName;
+                // $translatedDescriptionMap[$translatedStoreLocale] = $translatedDescription;
+
+                // fr_FR -> fr / fr_LU -> fr / de_DE -> de
+                $shortLang = strpos($translatedStoreLocale, "_") !== false ? explode("_", $translatedStoreLocale)[0] : $translatedStoreLocale;
+                if(!isset($translatedNameMap[$shortLang])) {
+                    $translatedNameMap[$shortLang] = $translatedName;
+                }
+                if(!isset($translatedDescriptionMap[$shortLang])) {
+                    $translatedDescriptionMap[$shortLang] = $translatedDescription;
+                }
+            }
+
             $data = [
                 "id" => (string) $product->getId(),
                 "reference" => (string) $product->getSku(),
@@ -360,8 +386,8 @@ class Product extends AbstractModel
                 "images" => $images,
                 "absolute_url" => (string) $url,
                 "relative_url" => (string) $urlKey,
-                "name" =>(string) $name,
-                "description" => (string) $description, // TODO : need to remove html ??
+                "name" => $translatedNameMap,
+                "description" => $translatedDescriptionMap, // TODO : need to remove html ??
                 "deleted" => $this->_formatBoolean(false), // always false when use this function
             ];
 

@@ -93,10 +93,10 @@ class DeletedItem extends AbstractModel
         }
     }
 
-    public function getDeletedCollection($entityType, $websiteId, $limit, $offset, $createdAt = null, $withData = true)
+    public function getDeletedCollection($entityType, $website, $limit, $offset, $createdAt = null, $withData = true)
     {
         $this->_currentEntityType = $entityType;
-        return $this->getSyncCollection($websiteId, $limit, $offset, $createdAt, null, $withData);
+        return $this->getSyncCollection($website, $limit, $offset, $createdAt, null, $withData);
     }
 
     protected function getModelCollection($searchCriteria, $websiteId)

@@ -9,26 +9,19 @@ use Kiliba\Connector\Helper\ConfigHelper;
 use Kiliba\Connector\Helper\FormatterHelper;
 use Kiliba\Connector\Helper\KilibaCaller;
 use Kiliba\Connector\Helper\KilibaLogger;
-use Magento\Directory\Model\ResourceModel\Country\CollectionFactory;
-use Magento\Directory\Model\CountryFactory;
 use Magento\Framework\Api\SearchCriteriaBuilder;
 use Magento\Framework\App\ResourceConnection;
 use Magento\Framework\Serialize\SerializerInterface;
+use Magento\Customer\Model\ResourceModel\Group\Collection as CustomerGroupModel;
 
-class Country extends AbstractModel
+class CustomerGroup extends AbstractModel
 {
-
     /**
-     * @var CollectionFactory
+     * @var CustomerGroupModel
      */
-    protected $_countryCollection;
+    protected $_customerGroup;
 
-    /**
-     * @var CountryFactory
-     */
-    protected $_countryFactory;
-
-    protected $_coreTable = "directory_country";
+    protected $_coreTable = "customer_group";
     protected $_filterScope = false;
 
     public function __construct(
@@ -39,8 +32,7 @@ class Country extends AbstractModel
         SerializerInterface $serializer,
         SearchCriteriaBuilder $searchCriteriaBuilder,
         ResourceConnection $resourceConnection,
-        CollectionFactory $countryCollection,
-        CountryFactory $countryFactory
+        CustomerGroupModel $customerGroup
     ) {
         parent::__construct(
             $configHelper,
@@ -51,68 +43,62 @@ class Country extends AbstractModel
             $searchCriteriaBuilder,
             $resourceConnection
         );
-        $this->_countryCollection = $countryCollection;
-        $this->_countryFactory = $countryFactory;
+        $this->_customerGroup = $customerGroup;
     }
 
     /**
      * @param int $entityId
      * @param int $websiteId
-     * @return \Magento\Directory\Model\Country
+     * @return \Magento\Customer\Model\ResourceModel\Group\Collection
      */
     public function getEntity($entityId)
     {
-        return $this->_countryFactory->create()->loadByCode($entityId);
+        // TODO ?
     }
 
 
     protected function getModelCollection($searchCriteria, $websiteId)
     {
-        $searchCriteria
-            ->addFilter("website_id", $websiteId);
-
-        return $this->_countryFactory->getList($searchCriteria->create())->getItems();
+        $customerGroups = $this->_customerGroup->toOptionArray();
+        return $customerGroups;
     }
 
     public function prepareDataForApi($collection, $websiteId)
     {
-        $countriesData = [];
-        foreach ($collection as $country) {
-            if ($country->getId()) {
-                $countriesData[] = $this->formatData($country);
-            }
+        $customerGroupsData = [];
+        foreach ($collection as $customerGroup) {
+            $customerGroupsData[] = $this->formatData($customerGroup);
         }
 
-        return $countriesData;
+        return $customerGroupsData;
     }
 
     public function getSyncCollection($website, $limit, $offset, $createdAt = null, $updatedAt = null, $withData = true) {
-        /* ON country no limit offet or filter needed*/
-
-        $collection = $this->_countryCollection->create();
+        $customerGroups = $this->_customerGroup->toOptionArray();
 
         if ($withData) {
-            return $this->prepareDataForApi($collection, $website->getId());
+            return $this->prepareDataForApi($customerGroups, $website->getId());
         }
-
+        
         $ids = [];
-        foreach ($collection as $item) {
-            $ids[] = $item->getId();
+        foreach ($customerGroups as $item) {
+            $ids[] = $customerGroup["value"];
         }
 
         return $ids;
     }
 
     /**
-     * @param \Magento\Directory\Model\Country $country
+     * @param \Magento\Customer\Model\ResourceModel\Group\Collection $customerGroup
      * @return array
      */
-    public function formatData($country)
+    public function formatData($customerGroup)
     {
         $data = [
-            "id_country" => (string) $country->getCountryId(),
-            "iso_code" => (string) $country->getData("iso2_code"),
+            "id" => (string) $customerGroup["value"],
+            "name" => (string) $customerGroup["label"]
         ];
+
         return $data;
     }
 
@@ -123,14 +109,14 @@ class Country extends AbstractModel
     {
         $schema = [
             "type" => "record",
-            "name" => "Pays",
+            "name" => "CustomerGroup",
             "fields" => [
                 [
-                    "name" => "id_country",
+                    "name" => "id",
                     "type" => "string"
                 ],
                 [
-                    "name" => "iso_code",
+                    "name" => "name",
                     "type" => "string"
                 ]
             ],
