@@ -141,6 +141,16 @@ class ConfigHelper extends \Magento\Framework\App\Helper\AbstractHelper
     }
 
     /**
+     * Get store config value from ScopeConfigInterface
+     * @param string $path
+     * @param int $storeId
+     * @return string
+     */
+    public function getStoreConfig($path, $storeId) {
+        return $this->_scopeConfig->getValue($path, ScopeInterface::SCOPE_STORE, $storeId);
+    }
+
+    /**
      * @param int $storeId
      * @return string
      */
@@ -307,5 +317,13 @@ class ConfigHelper extends \Magento\Framework\App\Helper\AbstractHelper
         } else {
             return hash("md5", rand()).hash("md5", rand());
         }
+    }
+
+    /**
+     * Extract lang short code from locale.
+     * fr_FR -> fr / fr_LU -> fr / de_DE -> de
+     */
+    public function extractLangFromLocale($idLang) {
+        return strpos($idLang, "_") !== false ? explode("_", $idLang)[0] : $idLang;
     }
 }

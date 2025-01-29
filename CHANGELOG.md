@@ -1,8 +1,12 @@
 # Changelog
 All notable changes to this project will be documented in this file.
 
-## [2.3.0] - 12/08/2024
+## [2.4.0] - 27/01/2025
+- Happy new year 2025
+- Add enhanced mode for quotes
+## [2.3.0] - 10/09/2024
 - Add translations for product name and description
+- Add customer groups synchronization
 ## [2.2.9] - 12/08/2024
 - Add bundle products in products synchronization (requires plugin to custom prices)
 ## [2.2.8] - 07/08/2024

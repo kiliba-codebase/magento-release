@@ -147,7 +147,6 @@ class Product extends AbstractModel
         $this->_objectManager = $objectManager;
         $this->_moduleManager = $moduleManager;
 
-
         if($this->_moduleManager->isEnabled('Magento_InventorySalesAdminUi')) {
             try {
                 $this->_getSalableQuantityDataBySku = $this->_objectManager->create("Magento\InventorySalesAdminUi\Model\GetSalableQuantityDataBySku");
@@ -334,7 +333,7 @@ class Product extends AbstractModel
                 // $translatedDescriptionMap[$translatedStoreLocale] = $translatedDescription;
 
                 // fr_FR -> fr / fr_LU -> fr / de_DE -> de
-                $shortLang = strpos($translatedStoreLocale, "_") !== false ? explode("_", $translatedStoreLocale)[0] : $translatedStoreLocale;
+                $shortLang = $this->_configHelper->extractLangFromLocale($translatedStoreLocale);
                 if(!isset($translatedNameMap[$shortLang])) {
                     $translatedNameMap[$shortLang] = $translatedName;
                 }

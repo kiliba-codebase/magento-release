@@ -10,16 +10,21 @@ use Kiliba\Connector\Helper\FormatterHelper;
 use Kiliba\Connector\Helper\KilibaCaller;
 use Kiliba\Connector\Helper\KilibaLogger;
 use Magento\Catalog\Api\ProductRepositoryInterface;
+use Magento\Customer\Api\CustomerRepositoryInterface;
 use Magento\Framework\Api\SearchCriteriaBuilder;
 use Magento\Framework\App\ResourceConnection;
+use Magento\Framework\App\RequestInterface;
 use Magento\Framework\Exception\NoSuchEntityException;
 use Magento\Framework\Serialize\SerializerInterface;
+use Magento\Framework\Stdlib\DateTime\TimezoneInterface;
 use Magento\Quote\Model\ResourceModel\Quote\CollectionFactory;
 use Magento\Quote\Api\CartRepositoryInterface;
 use Kiliba\Connector\Helper\CookieHelper;
 
 class Quote extends AbstractModel
 {
+
+    const PARAM_ENHANCED = "enhanced";
 
     /**
      * @var CollectionFactory
@@ -37,11 +42,41 @@ class Quote extends AbstractModel
     protected $_productRepository;
 
     /**
+     * @var CustomerRepositoryInterface
+     */
+    protected $_customerRepository;
+
+    /**
      * @var CookieHelper
      */
     protected $_cookieHelper;
 
+    /**
+     * @var RequestInterface
+     */
+    protected $_request;
+
+    /**
+     * @var TimezoneInterface
+     */
+    protected $_timezone;
+
     protected $_coreTable = "quote";
+
+    // store data
+    /**
+     * @var string[]
+     */
+    protected $_mediaUrl;
+    /**
+     * @var string
+     */
+    protected $_optionUseImageFromConfigurableChild;
+    
+    /**
+     * @var bool
+     */
+    protected $enhancedMode;
 
     public function __construct(
         ConfigHelper $configHelper,
@@ -54,7 +89,10 @@ class Quote extends AbstractModel
         CollectionFactory $quoteCollectionFactory,
         CartRepositoryInterface $quoteRepository,
         ProductRepositoryInterface $productRepository,
-        CookieHelper $cookieHelper
+        CustomerRepositoryInterface $customerRepository,
+        CookieHelper $cookieHelper,
+        RequestInterface $request,
+        TimezoneInterface $timezone
     ) {
         parent::__construct(
             $configHelper,
@@ -68,7 +106,14 @@ class Quote extends AbstractModel
         $this->_quoteCollectionFactory = $quoteCollectionFactory;
         $this->_quoteRepository = $quoteRepository;
         $this->_productRepository = $productRepository;
+        $this->_customerRepository = $customerRepository;
         $this->_cookieHelper = $cookieHelper;
+        $this->_request = $request;
+        $this->_timezone = $timezone;
+
+        $this->_mediaUrl = array();
+
+        $this->enhancedMode = $this->_request->getParam(self::PARAM_ENHANCED) === "true";
     }
 
     /**
@@ -154,18 +199,54 @@ class Quote extends AbstractModel
                 }
             } catch (\Exception $e) {}
 
+            // Get customer details if enhanced mode
+            if($this->enhancedMode) {
+                try {
+                    // Logged
+                    if($quote->getCustomerId()) {
+                        $customer = $this->_customerRepository->getById($quote->getCustomerId());
+                    }
+                    // Guest
+                    else if($customer_email) {
+                        $customer = $this->_customerRepository->get($customer_email);
+                    }
+                    // No one
+                    else {
+                        $customer = null;
+                    }
+
+                    if($customer) {
+                        $customer = array(
+                            "id" => (string) $customer->getId(),
+                            "email" => (string) $customer->getEmail(),
+                            "firstname" => (string) $customer->getFirstName(),
+                            "lastname" => (string) $customer->getLastName()          
+                        );
+                    }
+                } catch (\Exception $e) {}
+            } else {
+                $customer = null;
+            }
+
+            $quoteLocale = $this->_configHelper->getStoreLocale($quote->getStoreId());
+
             $data = [
                 "id" => (string)$quote->getId(),
                 "customer_email" => (string)$customer_email,
                 "customer_email_type" => (string)$customer_email_type,
+                "customer" => $customer,
                 "id_shop_group" => (string)$websiteId,
                 "id_shop" => (string)$quote->getStoreId(),
                 "id_customer" => (string)$quote->getCustomerId(),
                 "id_currency" => (string)$quote->getBaseCurrencyCode(),
                 "id_address_delivery" => (string)$shippingAddressId,
                 "id_address_invoice" => (string)$quote->getBillingAddress()->getId(),
-                "date_add" => (string)$quote->getCreatedAt(),
-                "date_update" => (string)$quote->getUpdatedAt(),
+                "id_lang" => (string) $this->_configHelper->extractLangFromLocale($quoteLocale),
+                "locale" => (string) $quoteLocale,
+                "date_add" => (string) $quote->getCreatedAt(),
+                "timestamp_add" => (string) $this->_timezone->date(new \DateTime($quote->getCreatedAt()))->getTimestamp(),
+                "date_update" => (string) $quote->getUpdatedAt(),
+                "timestamp_update" => (string) $this->_timezone->date(new \DateTime($quote->getUpdatedAt()))->getTimestamp(),
                 "total_with_tax_with_shipping_with_discount" => (string)$quote->getBaseGrandTotal(),
                 "total_with_tax_without_shipping_with_discount" => (string)$quote->getBaseSubtotalWithDiscount(),
                 "total_discount_with_tax" => $this->_formatPrice(
@@ -195,22 +276,68 @@ class Quote extends AbstractModel
     protected function _formatProductData($quoteItem, $websiteId)
     {
         try {
-            $product = $quoteItem->getProduct();
+            $quoteProduct = $quoteItem->getProduct();
+            $storeId = $quoteItem->getStoreId();
+
+            if($this->enhancedMode) {
+                $configurableChildProduct = $quoteItem->getOptionByCode('simple_product');
+
+                $product = $this->_productRepository->getById(
+                    $configurableChildProduct ? $configurableChildProduct->getProduct()->getId() : $quoteProduct->getId(),
+                    false,
+                    $storeId
+                );
+
+                if (!isset($this->_mediaUrl[$storeId])) {
+                    $store = $this->_configHelper->getStoreById($websiteId);
+                    $this->_mediaUrl[$storeId] = $store->getBaseUrl(\Magento\Framework\UrlInterface::URL_TYPE_MEDIA);
+                }
+
+                // Read option from cache
+                // Or from config (defined in Settings > Sales > Checkout)
+                $this->_optionUseImageFromConfigurableChild = $optionUseImageFromConfigurableChild =
+                    $this->_optionUseImageFromConfigurableChild
+                        ? $this->_optionUseImageFromConfigurableChild
+                        : $this->_configHelper->getStoreConfig(
+                            \Magento\ConfigurableProduct\Model\Product\Configuration\Item\ItemProductResolver::CONFIG_THUMBNAIL_SOURCE,
+                            $storeId
+                        );
+
+                $childThumbnail = $product->getThumbnail();
+
+                // Check if we need to use the configurable child image and if child has own image
+                if($optionUseImageFromConfigurableChild === \Magento\Catalog\Model\Config\Source\Product\Thumbnail::OPTION_USE_OWN_IMAGE && $childThumbnail && $childThumbnail !== "no_selection") {
+                    $image = $childThumbnail;
+                } else { // Otherwise keep parent image
+                    $image = $quoteProduct->getThumbnail();
+                }
+
+                $imageUrl = $this->_mediaUrl[$storeId] . "catalog/product" . $image;
+                $absoluteUrl = $quoteProduct->getProductUrl(); // Always take parent product URL
+            } else {
+                $product = $quoteProduct;
+                $imageUrl = "";
+                $absoluteUrl = "";
+            }
 
             return [
                 "id_product" => (string) $product->getId(),
                 "id_product_attribute" => (string) $product->getAttributeSetId(),
                 "cart_quantity" => (string) $quoteItem->getQty(),
-                "id_shop" => (string) $quoteItem->getStoreId(),
-                "reference" => (string) $quoteItem->getSku(),
+                "id_shop" => (string) $storeId,
+                "reference" => (string) $product->getSku(),
                 "reduction" => (string) $quoteItem->getDiscountAmount(),
                 "reduction_type" => "",
                 "total_wt" => $this->_formatPrice($quoteItem->getBaseRowTotalInclTax()),
                 "total_unit_wt" => $this->_formatPrice($quoteItem->getBasePriceInclTax()),
+                "product_type" => $quoteProduct->getTypeId(),
+                "name" => $quoteProduct->getName(),
+                "absolute_url" => $absoluteUrl,
+                "image_url" => $imageUrl,
                 "id_category_default" => $this->_formatterHelper->getLowerCategory(
                     $product->getCategoryIds(),
                     $product->getStoreId()
-                ),
+                )
             ];
         } catch (\Exception $e) {
             $this->_kilibaLogger->addLog(
