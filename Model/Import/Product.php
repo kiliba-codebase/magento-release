@@ -224,6 +224,14 @@ class Product extends AbstractModel
         return $productsData;
     }
 
+    public function computeProductPrice($product) {
+        return array(
+            "price" => $this->_formatterHelper->getProductPriceExcludingTax($product, $product->getPrice()),
+            "price_wt" => $this->_formatterHelper->getProductPriceIncludingTax($product, $product->getPrice()),
+            "special_price" => $this->_getProductDiscountPrice($product),
+            "special_price_wt" => $this->_getProductDiscountPrice($product, true),
+        );
+    }
 
     /**
      * @param \Magento\Catalog\Model\Product|\Magento\Catalog\Api\Data\ProductInterface $product
@@ -342,6 +350,8 @@ class Product extends AbstractModel
                 }
             }
 
+            $prices = $this->computeProductPrice($product);
+
             $data = [
                 "id" => (string) $product->getId(),
                 "reference" => (string) $product->getSku(),
@@ -360,16 +370,10 @@ class Product extends AbstractModel
                 "active" => (string) $product->getStatus(),
                 "visibility" => (string) $parentVisibility,
                 "visibility_simple" => (string) $productVisibility,
-                "price" => $this->_formatPrice($this->_formatterHelper->getProductPriceExcludingTax(
-                    $product,
-                    $product->getPrice()
-                )),
-                "price_wt" => $this->_formatPrice($this->_formatterHelper->getProductPriceIncludingTax(
-                    $product,
-                    $product->getPrice()
-                )),
-                "special_price" => $this->_formatPrice($this->_getProductDiscountPrice($product)),
-                "special_price_wt" => $this->_formatPrice($this->_getProductDiscountPrice($product, true)),
+                "price" => $this->_formatPrice($prices["price"]),
+                "price_wt" => $this->_formatPrice($prices["price_wt"]),
+                "special_price" => $this->_formatPrice($prices["special_price"]),
+                "special_price_wt" => $this->_formatPrice($prices["special_price_wt"]),
                 "special_from_date" => (string) $product->getSpecialFromDate(),
                 "special_to_date" => (string) $product->getSpecialToDate(),
                 "available_for_order" => "1",

@@ -1,6 +1,8 @@
 # Changelog
 All notable changes to this project will be documented in this file.
 
+## [2.4.1] - 06/02/2025
+- Add overridable method to compute product prices
 ## [2.4.0] - 27/01/2025
 - Happy new year 2025
 - Add enhanced mode for quotes
