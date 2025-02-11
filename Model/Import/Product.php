@@ -22,6 +22,7 @@ use Magento\Framework\ObjectManagerInterface;
 use Magento\Framework\Api\SearchCriteriaBuilder;
 use Magento\Framework\Api\SortOrderBuilder;
 use Magento\Framework\App\ResourceConnection;
+use Magento\Framework\App\RequestInterface;
 use Magento\Framework\Exception\NoSuchEntityException;
 use Magento\Framework\Serialize\SerializerInterface;
 use Magento\Framework\Module\Manager;
@@ -29,6 +30,7 @@ use Magento\Store\Model\StoreManagerInterface;
 
 class Product extends AbstractModel
 {
+    const PARAM_BUNDLE_PRICES_MODE = "bundlepricemode";
 
     const PRODUCT_TYPE_SYNC = [
         \Magento\Catalog\Model\Product\Type::TYPE_SIMPLE,
@@ -93,6 +95,11 @@ class Product extends AbstractModel
     protected $_moduleManager;
 
     /**
+     * @var RequestInterface
+     */
+    protected $_request;
+
+    /**
      * @var \Magento\InventorySalesAdminUi\Model\GetSalableQuantityDataBySku
      */
     private $_getSalableQuantityDataBySku;
@@ -124,7 +131,8 @@ class Product extends AbstractModel
         StockItemCriteriaInterfaceFactory $criteriaInterfaceFactory,
         StockConfigurationInterface $stockConfiguration,
         ObjectManagerInterface $objectManager,
-        Manager $moduleManager
+        Manager $moduleManager,
+        RequestInterface $request
     ) {
         parent::__construct(
             $configHelper,
@@ -146,6 +154,7 @@ class Product extends AbstractModel
         $this->_stockConfiguration = $stockConfiguration;
         $this->_objectManager = $objectManager;
         $this->_moduleManager = $moduleManager;
+        $this->_request = $request;
 
         if($this->_moduleManager->isEnabled('Magento_InventorySalesAdminUi')) {
             try {
@@ -225,12 +234,26 @@ class Product extends AbstractModel
     }
 
     public function computeProductPrice($product) {
-        return array(
-            "price" => $this->_formatterHelper->getProductPriceExcludingTax($product, $product->getPrice()),
-            "price_wt" => $this->_formatterHelper->getProductPriceIncludingTax($product, $product->getPrice()),
-            "special_price" => $this->_getProductDiscountPrice($product),
-            "special_price_wt" => $this->_getProductDiscountPrice($product, true),
-        );
+        $bundlePriceMode = $this->_request->getParam(self::PARAM_BUNDLE_PRICES_MODE);
+
+        // Raw calculation for Bundle price, take price as displayed in Magento
+        if($product->getTypeId() === \Magento\Catalog\Model\Product\Type::TYPE_BUNDLE && $bundlePriceMode === "auto_raw") {
+            $price = $product->getPriceInfo()->getPrice('final_price')->getAmount()->getValue();
+            $specialPrice = $product->getPriceInfo()->getPrice('regular_price')->getAmount()->getValue();
+            return array(
+                "price" => $price,
+                "price_wt" => $price,
+                "special_price" => $specialPrice,
+                "special_price_wt" => $specialPrice,
+            );
+        } else {
+            return array(
+                "price" => $this->_formatterHelper->getProductPriceExcludingTax($product, $product->getPrice()),
+                "price_wt" => $this->_formatterHelper->getProductPriceIncludingTax($product, $product->getPrice()),
+                "special_price" => $this->_getProductDiscountPrice($product),
+                "special_price_wt" => $this->_getProductDiscountPrice($product, true),
+            );
+        }
     }
 
     /**

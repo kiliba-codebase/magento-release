@@ -1,6 +1,8 @@
 # Changelog
 All notable changes to this project will be documented in this file.
 
+## [2.4.2] - 11/02/2025
+- Bundle price mode: auto_raw (take prices as displayed on Magento)
 ## [2.4.1] - 06/02/2025
 - Add overridable method to compute product prices
 ## [2.4.0] - 27/01/2025
