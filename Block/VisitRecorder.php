@@ -7,6 +7,7 @@ namespace Kiliba\Connector\Block;
 
 use Magento\Framework\View\Element\Template;
 use Magento\Framework\Registry;
+use Magento\Customer\Model\Session;
 
 class VisitRecorder extends \Magento\Framework\View\Element\Template
 {
@@ -24,13 +25,20 @@ class VisitRecorder extends \Magento\Framework\View\Element\Template
      */
     protected $_pageType;
 
+    /**
+     * @var Session
+     */
+    protected $_customerSession;
+
     public function __construct(
         Template\Context $context,
         Registry $registry,
+        Session $customerSession,
         array $data = []
     ) {
         parent::__construct($context, $data);
         $this->_registry = $registry;
+        $this->_customerSession = $customerSession;
     }
 
     /**
@@ -58,6 +66,11 @@ class VisitRecorder extends \Magento\Framework\View\Element\Template
     public function getStoreId()
     {
         return $this->_storeManager->getStore()->getId();
+    }
+
+    public function getCustomerIsLoggedIn()
+    {
+        return $this->_customerSession->isLoggedIn();
     }
 
     protected function _getPageType()

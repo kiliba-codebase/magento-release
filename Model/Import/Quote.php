@@ -200,6 +200,7 @@ class Quote extends AbstractModel
             } catch (\Exception $e) {}
 
             // Get customer details if enhanced mode
+            $customer = null;
             if($this->enhancedMode) {
                 try {
                     // Logged
@@ -224,8 +225,6 @@ class Quote extends AbstractModel
                         );
                     }
                 } catch (\Exception $e) {}
-            } else {
-                $customer = null;
             }
 
             $quoteLocale = $this->_configHelper->getStoreLocale($quote->getStoreId());
@@ -279,6 +278,10 @@ class Quote extends AbstractModel
             $quoteProduct = $quoteItem->getProduct();
             $storeId = $quoteItem->getStoreId();
 
+            $product = $quoteProduct;
+            $imageUrl = "";
+            $absoluteUrl = "";
+
             if($this->enhancedMode) {
                 $configurableChildProduct = $quoteItem->getOptionByCode('simple_product');
 
@@ -314,10 +317,6 @@ class Quote extends AbstractModel
 
                 $imageUrl = $this->_mediaUrl[$storeId] . "catalog/product" . $image;
                 $absoluteUrl = $quoteProduct->getProductUrl(); // Always take parent product URL
-            } else {
-                $product = $quoteProduct;
-                $imageUrl = "";
-                $absoluteUrl = "";
             }
 
             return [

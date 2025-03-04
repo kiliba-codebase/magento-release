@@ -6,27 +6,49 @@
 $productId = $block->getProductId();
 $categoryId = $block->getCategoryId();
 $storeId = $block->getStoreId();
+$customerIsLoggedIn = $block->getCustomerIsLoggedIn();
 ?>
 
 <script>
-    require(
-    [
-        'jquery',
-        'visitRecorder',
-        'mage/cookies',
-        'domReady!'
-    ], function ($, visitRecorder) {
+    document.addEventListener("DOMContentLoaded", function () {
+        var cookies = (document.cookie || "").split(";")
+            .reduce(function (obj, cookie) {
+                var parsedCookie = (cookie || "").split("=");
+                var name = decodeURIComponent((parsedCookie[0] || "").trim());
+                var value = decodeURIComponent((parsedCookie[1] || "").trim());
+                obj[name] = value;
+                return obj;
+            }, {});
+
+        var customerIsLoggedIn = <?= $customerIsLoggedIn ? 'true' : 'false' ?>;
+        if(!customerIsLoggedIn && !cookies["ki_cus"]) {
+            return;
+        }
+
         var url = window.location.href;
         var productId = '<?= /* @noEscape */ $productId ?>';
         var categoryId = '<?= /* @noEscape */ $categoryId ?>';
         var storeId = '<?= /* @noEscape */ $storeId ?>';
+        var formKey = cookies["form_key"] || "";
 
-        visitRecorder({
-            "url": url,
-            "productId": productId,
-            "categoryId": categoryId,
-            "storeId": storeId,
-            "formKey": $.mage.cookies.get('form_key'),
+        var baseUrl = window.BASE_URL || "/";
+
+        fetch(baseUrl + "kilibam2/record/visit", {
+            method: "POST",
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded'
+            },
+            body: new URLSearchParams({
+                url: url,
+                productId: productId,
+                categoryId: categoryId,
+                storeId: storeId,
+                form_key: formKey
+            })
+        }).then(function (response) {
+            return response.text();
+        }).catch(function (error) {
+            console.error("Kiliba - Unable to collect visit", error);
         });
     });
 </script>

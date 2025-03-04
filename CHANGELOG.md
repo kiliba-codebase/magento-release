@@ -1,6 +1,8 @@
 # Changelog
 All notable changes to this project will be documented in this file.
 
+## [2.5.0] - 04/03/2025
+- Compatibility with frontend themes without jQuery or RequireJS
 ## [2.4.2] - 11/02/2025
 - Bundle price mode: auto_raw (take prices as displayed on Magento)
 ## [2.4.1] - 06/02/2025
