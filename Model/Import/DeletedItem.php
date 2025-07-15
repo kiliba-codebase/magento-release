@@ -43,6 +43,11 @@ class DeletedItem extends AbstractModel
      */
     protected  $_dataPriceRuleManager;
 
+    /**
+     * @var CatalogRule
+     */
+    protected  $_dataCatalogRuleManager;
+
     // store data
     protected $_currentEntityType;
 
@@ -58,7 +63,8 @@ class DeletedItem extends AbstractModel
         DeletedItemRepositoryInterface $deletedItemRepository,
         Product $dataProductManager,
         Customer $dataCustomerManager,
-        PriceRule $dataPriceRuleManager
+        PriceRule $dataPriceRuleManager,
+        CatalogRule $dataCatalogRuleManager
     ) {
         parent::__construct(
             $configHelper,
@@ -74,6 +80,7 @@ class DeletedItem extends AbstractModel
         $this->_dataProductManager = $dataProductManager;
         $this->_dataCustomerManager = $dataCustomerManager;
         $this->_dataPriceRuleManager = $dataPriceRuleManager;
+        $this->_dataCatalogRuleManager = $dataCatalogRuleManager;
     }
 
     /**
@@ -133,6 +140,12 @@ class DeletedItem extends AbstractModel
                             break;
                         case "priceRule":
                             $data = $this->_dataPriceRuleManager->formatDeletedPriceRule(
+                                $deletedItem->getEntityId(),
+                                $websiteId
+                            );
+                            break;
+                        case "catalogRule":
+                            $data = $this->_dataCatalogRuleManager->formatDeletedCatalogRule(
                                 $deletedItem->getEntityId(),
                                 $websiteId
                             );

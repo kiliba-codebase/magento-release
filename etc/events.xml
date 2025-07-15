@@ -14,6 +14,9 @@
     <event name="salesrule_rule_delete_before">
         <observer name="record_priceRule_deletion" instance="Kiliba\Connector\Observer\PriceRule\RecordPriceRuleDeletion" />
     </event>
+    <event name="catalogrule_rule_delete_before">
+        <observer name="record_catalogRule_deletion" instance="Kiliba\Connector\Observer\CatalogRule\RecordCatalogRuleDeletion" />
+    </event>
     <event name="sales_quote_save_after">
         <observer name="improve_quote_data" instance="Kiliba\Connector\Observer\Quote\SalesQuoteSaveAfterObserver" />
     </event>

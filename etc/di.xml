@@ -27,6 +27,7 @@
     <type name="Kiliba\Connector\Model\Import\DeletedItemFactory" />
     <type name="Kiliba\Connector\Model\Import\CategoryFactory" />
     <type name="Kiliba\Connector\Model\Import\PriceRuleFactory" />
+    <type name="Kiliba\Connector\Model\Import\CatalogRuleFactory" />
     <type name="Kiliba\Connector\Model\Import\CouponFactory" />
     <type name="Kiliba\Connector\Model\Import\CustomerGroupFactory" />
 
@@ -42,6 +43,7 @@
                 <item name="deleted" xsi:type="string">Kiliba\Connector\Model\Import\DeletedItemFactory</item>
                 <item name="category" xsi:type="string">Kiliba\Connector\Model\Import\CategoryFactory</item>
                 <item name="priceRule" xsi:type="string">Kiliba\Connector\Model\Import\PriceRuleFactory</item>
+                <item name="catalogRule" xsi:type="string">Kiliba\Connector\Model\Import\CatalogRuleFactory</item>
                 <item name="coupon" xsi:type="string">Kiliba\Connector\Model\Import\CouponFactory</item>
                 <item name="customerGroup" xsi:type="string">Kiliba\Connector\Model\Import\CustomerGroupFactory</item>
             </argument>

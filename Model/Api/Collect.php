@@ -82,7 +82,7 @@ class Collect extends AbstractApiAction implements CollectInterface
         }
 
         
-        $authorizedModels=['deleted_customer','deleted_product','product','visit','customer','country','order','quote','category','priceRule','coupon','deleted_priceRule','customerGroup'];
+        $authorizedModels=['deleted_customer','deleted_product','product','visit','customer','country','order','quote','category','priceRule','catalogRule','coupon','deleted_priceRule','deleted_catalogRule','customerGroup'];
         if (!in_array($model, $authorizedModels)) {
             $result = ["success" => false, "error" => "Unauthorized model"];
             return [$result];
@@ -134,6 +134,18 @@ class Collect extends AbstractApiAction implements CollectInterface
                     $formatterModel = $this->_formatterResolver->get("deleted");
                     $modelDatas = $formatterModel->getDeletedCollection(
                         "priceRule",
+                        $website,
+                        $limit,
+                        $offset,
+                        $this->timestampToDate($createdAt),
+                        $withData
+                    );
+                    $totalCount = $formatterModel->getTotalCount($websiteId);
+                    break;
+                case "deleted_catalogRule":
+                    $formatterModel = $this->_formatterResolver->get("deleted");
+                    $modelDatas = $formatterModel->getDeletedCollection(
+                        "catalogRule",
                         $website,
                         $limit,
                         $offset,

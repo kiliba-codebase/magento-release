@@ -2,7 +2,7 @@
   "name": "kiliba/module-connector",
   "description": "Kiliba",
   "type": "magento2-module",
-  "version": "2.5.0",
+  "version": "2.6.0",
   "license": "OSL-3.0",
   "require": {
     "php": ">=7.0.2",
