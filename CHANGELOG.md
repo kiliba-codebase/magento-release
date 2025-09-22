@@ -1,6 +1,8 @@
 # Changelog
 All notable changes to this project will be documented in this file.
 
+## [2.6.1] - 22/09/2025
+- PHP 8.4 compatibility
 ## [2.6.0] - 09/07/2025
 - Add catalog rules synchronization
 ## [2.5.0] - 04/03/2025

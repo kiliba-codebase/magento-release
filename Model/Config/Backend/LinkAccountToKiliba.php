@@ -43,8 +43,8 @@ class LinkAccountToKiliba extends \Magento\Framework\App\Config\Value
         ManagerInterface $messageManager,
         ConfigHelper $configHelper,
         KilibaLogger $kilibaLogger,
-        \Magento\Framework\Model\ResourceModel\AbstractResource $resource = null,
-        \Magento\Framework\Data\Collection\AbstractDb $resourceCollection = null,
+        ?\Magento\Framework\Model\ResourceModel\AbstractResource $resource = null,
+        ?\Magento\Framework\Data\Collection\AbstractDb $resourceCollection = null,
         array $data = []
     ) {
         parent::__construct(

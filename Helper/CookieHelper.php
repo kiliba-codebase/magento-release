@@ -37,7 +37,7 @@ class CookieHelper extends \Magento\Framework\App\Helper\AbstractHelper
     public function __construct(
         KilibaLogger $kilibaLogger,
         CookieMetadataFactory $cookieMetadataFactory,
-        CookieManagerInterface $cookieManager = null
+        ?CookieManagerInterface $cookieManager = null
     ) {
         $this->_kilibaLogger = $kilibaLogger;
         $this->_cookieMetadataFactory = $cookieMetadataFactory;
