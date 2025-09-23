@@ -1,6 +1,8 @@
 # Changelog
 All notable changes to this project will be documented in this file.
 
+## [2.6.2] - 23/09/2025
+- Delete unused legacy SyncInterface
 ## [2.6.1] - 22/09/2025
 - PHP 8.4 compatibility
 ## [2.6.0] - 09/07/2025
