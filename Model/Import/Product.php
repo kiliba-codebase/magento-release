@@ -238,8 +238,8 @@ class Product extends AbstractModel
 
         // Raw calculation for Bundle price, take price as displayed in Magento
         if($product->getTypeId() === \Magento\Catalog\Model\Product\Type::TYPE_BUNDLE && $bundlePriceMode === "auto_raw") {
-            $price = $product->getPriceInfo()->getPrice('final_price')->getAmount()->getValue();
-            $specialPrice = $product->getPriceInfo()->getPrice('regular_price')->getAmount()->getValue();
+            $price = $product->getPriceInfo()->getPrice('regular_price')->getAmount()->getValue();
+            $specialPrice = $product->getPriceInfo()->getPrice('final_price')->getAmount()->getValue();
             return array(
                 "price" => $price,
                 "price_wt" => $price,
