@@ -16,6 +16,12 @@
             <resource ref="anonymous" />
         </resources>
     </route>
+    <route url="/V1/kiliba-connector/uploadImage/" method="POST">
+        <service class="Kiliba\Connector\Api\Module\ConfigurationInterface" method="uploadImage"/>
+        <resources>
+            <resource ref="anonymous" />
+        </resources>
+    </route>
 
     <route url="/V1/kiliba-connector/getLog/" method="POST">
         <service class="Kiliba\Connector\Api\Module\LogInterface" method="getLogs"/>
@@ -61,6 +67,32 @@
         <service class="Kiliba\Connector\Api\Module\DiscountInterface" method="purgeMagentoDiscountCode"/>
         <resources>
             <resource ref="anonymous" />
+        </resources>
+    </route>
+
+    <!-- Popup -->
+    <route url="/V1/kiliba-connector/popup/:popupType/configuration" method="POST">
+        <service class="Kiliba\Connector\Api\Module\PopupInterface" method="updatePopupConfiguration"/>
+        <resources>
+            <resource ref="anonymous"/> <!-- allow frontend access -->
+        </resources>
+    </route>
+    <route url="/V1/kiliba-connector/popup/:popupType/activation" method="POST">
+        <service class="Kiliba\Connector\Api\Module\PopupInterface" method="updatePopupActivation"/>
+        <resources>
+            <resource ref="anonymous"/> <!-- allow frontend access -->
+        </resources>
+    </route>
+    <route url="/V1/kiliba-connector/popup/:popupType" method="GET">
+        <service class="Kiliba\Connector\Api\Module\PopupInterface" method="getPopupConfiguration"/>
+        <resources>
+            <resource ref="anonymous"/> <!-- allow frontend access -->
+        </resources>
+    </route>
+    <route url="/V1/kiliba-connector/popup/:popupType" method="POST">
+        <service class="Kiliba\Connector\Api\Module\PopupInterface" method="registerSubscription"/>
+        <resources>
+            <resource ref="anonymous"/> <!-- allow frontend access -->
         </resources>
     </route>
 </routes>

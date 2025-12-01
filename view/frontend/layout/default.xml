@@ -1,0 +1,14 @@
+<?xml version="1.0"?>
+<page xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:framework:View/Layout/etc/page_configuration.xsd">
+    <head>
+        <css src="Kiliba_Connector::css/popup.min.css"/>
+        <script src="Kiliba_Connector::js/popup.min.js"/>
+    </head>
+    <body>
+        <referenceContainer name="before.body.end">
+            <block class="Kiliba\Connector\Block\PopupConfiguration"
+                name="kiliba.connector.popupconfiguration"
+                template="Kiliba_Connector::popup_configuration.phtml"/>
+        </referenceContainer>
+    </body>
+</page>

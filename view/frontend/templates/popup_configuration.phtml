@@ -1,0 +1,11 @@
+<?php
+    $locale = $block->getLocale();
+
+    $finalConfig = json_encode(
+        array(
+            "locale" => $locale
+        )
+    );
+?>
+
+<script id="kilibapopup" type="application/json"><?= $finalConfig ?></script>

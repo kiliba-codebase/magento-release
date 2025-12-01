@@ -336,4 +336,65 @@ class KilibaCaller extends \Magento\Framework\App\Helper\AbstractHelper
 
         return $this->_modelsSchema[$model];
     }
+
+    /**
+     * Register popup subscription to Kiliba API
+     *
+     * @param string $popupType
+     * @param array $popupData
+     * @param int $storeId
+     * @param int $websiteId
+     * @return void
+     */
+    public function registerPopupSubscription($popupType, $popupData, $storeId, $websiteId)
+    {
+        try {
+            $accountId = $this->_configHelper->getClientId($websiteId);
+            $token = $this->_configHelper->getConfigWithoutCache(ConfigHelper::XML_PATH_FLUX_TOKEN, $websiteId);
+
+            $postfields = http_build_query([
+                'id_account' => $accountId,
+                'token' => $token,
+                'popup_type' => $popupType,
+                'popup_data' => json_encode($popupData),
+                'id_lang' => $this->_configHelper->getStoreLocale($storeId),
+                'id_shop' => $storeId
+            ]);
+
+            $curl = $this->_curlClientFactory->create();
+            $curl->setOptions([
+                CURLOPT_URL => $this->_endpoint . '/registerPopupSubscription',
+                CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+                CURLOPT_RETURNTRANSFER => true,
+                CURLOPT_ENCODING => '',
+                CURLOPT_MAXREDIRS => 10,
+                CURLOPT_TIMEOUT => 30,
+                CURLOPT_CUSTOMREQUEST => 'POST',
+                CURLOPT_HTTPHEADER => [
+                    'Cache-Control: no-cache',
+                    'Content-Type: application/x-www-form-urlencoded',
+                ],
+                CURLOPT_POSTFIELDS => $postfields
+            ]);
+
+            $curl->post('', '');
+
+            $this->_kilibaLogger->addLog(
+                KilibaLogger::LOG_TYPE_INFO,
+                'Register Popup Subscription',
+                $this->_serializer->serialize([
+                    'popup_type' => $popupType,
+                    'popup_data' => $popupData
+                ]),
+                $websiteId
+            );
+        } catch (\Exception $e) {
+            $this->_kilibaLogger->addLog(
+                KilibaLogger::LOG_TYPE_ERROR,
+                'Register Popup Subscription Error',
+                $this->_serializer->serialize(['error' => $e->getMessage()]),
+                $websiteId
+            );
+        }
+    }
 }

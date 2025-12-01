@@ -18,4 +18,10 @@ interface ConfigurationInterface
      * @return string[]
      */
     public function refreshToken();
+
+    /**
+     * Upload image to Magento media directory
+     * @return string[]
+     */
+    public function uploadImage();
 }

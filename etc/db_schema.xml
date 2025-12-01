@@ -54,4 +54,25 @@
     <table name="quote" resource="checkout" engine="innodb" comment="Sales Flat Quote">
         <column xsi:type="text" name="kiliba_connector_customer_key" nullable="true" comment="Kiliba customer/guest key"/>
     </table>
+
+    <table name="kiliba_connector_popup_customers" resource="default" engine="innodb">
+        <column xsi:type="int" name="popup_customer_id" padding="10" unsigned="true" nullable="false" identity="true"/>
+        <constraint xsi:type="primary" referenceId="PRIMARY">
+            <column name="popup_customer_id"/>
+        </constraint>
+        <column name="popup_type" nullable="false" xsi:type="varchar" length="255" comment="Type of popup"/>
+        <column name="email" nullable="false" xsi:type="varchar" length="255" comment="Customer email"/>
+        <column name="subscribe" nullable="false" xsi:type="smallint" padding="1" unsigned="false" default="0" comment="Newsletter subscription flag"/>
+        <column name="subscribe_ip" nullable="true" xsi:type="varchar" length="45" comment="IP address if subscribed"/>
+        <column xsi:type="smallint" name="website_id" unsigned="true" nullable="false" identity="false"/>
+        <column name="created_at" nullable="false" xsi:type="timestamp" default="CURRENT_TIMESTAMP"/>
+
+        <constraint xsi:type="foreign" referenceId="KILIBA_CONNECTOR_POPUP_CUSTOMERS_WEBSITE_ID_STORE_WEBSITE_WEBSITE_ID"
+                    table="kiliba_connector_popup_customers" column="website_id" referenceTable="store_website" referenceColumn="website_id"
+                    onDelete="CASCADE"/>
+        <index referenceId="KILIBA_CONNECTOR_POPUP_CUSTOMERS_EMAIL_POPUP_TYPE" indexType="btree">
+            <column name="email"/>
+            <column name="popup_type"/>
+        </index>
+    </table>
 </schema>

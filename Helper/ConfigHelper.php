@@ -23,6 +23,9 @@ class ConfigHelper extends \Magento\Framework\App\Helper\AbstractHelper
     const XML_PATH_FLUX_TOKEN = "kiliba/connector/flux_token";
     const XML_PATH_LOG_LEVEL = "kiliba/connector/log_level";
 
+    const XML_PATH_POPUP_PROMOCODEFIRSTPURCHASE_CONFIGURATION = "kiliba/connector/popup_promocodefirstpurchase_configuration";
+    const XML_PATH_POPUP_PROMOCODEFIRSTPURCHASE_ACTIVATION = "kiliba/connector/popup_promocodefirstpurchase_activation";
+
     const CONFIG_NAME_DEBUG_MODE = "TESTING_ENVIRONMENT";
     const CONFIG_NAME_CLIENT_ID = "ID_ACCOUNT_THATSOWL";
     const CONFIG_NAME_LOG_LEVEL = "LOG_LEVEL";
