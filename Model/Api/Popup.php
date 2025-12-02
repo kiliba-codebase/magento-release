@@ -20,6 +20,7 @@ use Magento\Framework\HTTP\Client\CurlFactory;
 use Magento\Framework\Serialize\SerializerInterface;
 use Magento\Store\Model\StoreManagerInterface;
 use Magento\Framework\Locale\Resolver;
+use Magento\Customer\Helper\Session\CurrentCustomer;
 
 class Popup extends AbstractApiAction implements PopupInterface
 {
@@ -64,6 +65,11 @@ class Popup extends AbstractApiAction implements PopupInterface
     protected $localeResolver;
 
     /**
+     * @var CurrentCustomer
+     */
+    protected $currentCustomer;
+
+    /**
      * @param RequestInterface $request
      * @param ResourceConnection $resourceConnection
      * @param ConfigHelper $configHelper
@@ -78,6 +84,7 @@ class Popup extends AbstractApiAction implements PopupInterface
      * @param SerializerInterface $serializer
      * @param StoreManagerInterface $storeManager
      * @param Resolver $localeResolver
+     * @param CurrentCustomer $currentCustomer
      */
     public function __construct(
         RequestInterface $request,
@@ -93,7 +100,8 @@ class Popup extends AbstractApiAction implements PopupInterface
         CurlFactory $curlFactory,
         SerializerInterface $serializer,
         StoreManagerInterface $storeManager,
-        Resolver $localeResolver
+        Resolver $localeResolver,
+        CurrentCustomer $currentCustomer
     ) {
         parent::__construct($request, $resourceConnection, $configHelper, $kilibaLogger, $visitManager, $deletedItemManager);
         $this->kilibaCaller = $kilibaCaller;
@@ -104,6 +112,7 @@ class Popup extends AbstractApiAction implements PopupInterface
         $this->serializer = $serializer;
         $this->storeManager = $storeManager;
         $this->localeResolver = $localeResolver;
+        $this->currentCustomer = $currentCustomer;
     }
 
     /**
@@ -160,6 +169,47 @@ class Popup extends AbstractApiAction implements PopupInterface
                 if ($popupConfig && isset($popupConfig["captcha"]) && isset($popupConfig["captcha"]["secretkey"])) {
                     unset($popupConfig["captcha"]["secretkey"]);
                 }
+
+                // Check eligibility based on popup configuration
+                $eligibilityMode = isset($popupConfig['eligibilityMode']) ? $popupConfig['eligibilityMode'] : null;
+                
+                // Get customer email from session or cookie
+                $customerEmail = null;
+                
+                // Try to get from current customer session first
+                try {
+                    $customerId = $this->currentCustomer->getCustomerId();
+                    if ($customerId) {
+                        $customer = $this->currentCustomer->getCustomer();
+                        $customerEmail = $customer->getEmail();
+                    }
+                } catch (\Exception $e) {
+                    // Customer session not available in API context
+                }
+
+                // Check eligibility
+                if ($eligibilityMode === 'first-purchase') {
+                    // For first-purchase mode: allow if user is not connected OR hasn't made any order
+                    if ($customerEmail) {
+                        // User is connected, check if they have orders
+                        $hasOrdered = $this->customerHelper->hasEmailOrdered($customerEmail);
+                        if ($hasOrdered) {
+                            return [[
+                                "success" => false,
+                                "message" => "Customer not eligible"
+                            ]];
+                        }
+                    }
+                    // User not connected or hasn't made orders - eligible
+                } else {
+                    // For other modes: only allow if user is not connected
+                    if ($customerEmail) {
+                        return [[
+                            "success" => false,
+                            "message" => "Customer not eligible"
+                        ]];
+                    }
+                }
             } else {
                 $popupConfig = null;
             }
@@ -214,7 +264,7 @@ class Popup extends AbstractApiAction implements PopupInterface
 
             // Check if popup is activated
             $popupActivationDate = $this->_configHelper->getConfigWithoutCache(
-                $configurationConfigKey,
+                $activationConfigKey,
                 $websiteId
             );
 
@@ -244,7 +294,7 @@ class Popup extends AbstractApiAction implements PopupInterface
 
             // Get popup configuration
             $popupConfigJson = $this->_configHelper->getConfigWithoutCache(
-                $activationConfigKey,
+                $configurationConfigKey,
                 $websiteId
             );
             $popupConfiguration = json_decode($popupConfigJson, true);
