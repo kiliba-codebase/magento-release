@@ -340,13 +340,13 @@ class KilibaCaller extends \Magento\Framework\App\Helper\AbstractHelper
     /**
      * Register popup subscription to Kiliba API
      *
-     * @param string $popupType
+     * @param string $popupIdentifier
      * @param array $popupData
      * @param int $storeId
      * @param int $websiteId
      * @return void
      */
-    public function registerPopupSubscription($popupType, $popupData, $storeId, $websiteId)
+    public function registerPopupSubscription($popupIdentifier, $popupData, $storeId, $websiteId)
     {
         try {
             $accountId = $this->_configHelper->getClientId($websiteId);
@@ -355,29 +355,16 @@ class KilibaCaller extends \Magento\Framework\App\Helper\AbstractHelper
             $postfields = http_build_query([
                 'id_account' => $accountId,
                 'token' => $token,
-                'popup_type' => $popupType,
+                'popup_type' => $popupIdentifier,
                 'popup_data' => json_encode($popupData),
                 'id_lang' => $this->_configHelper->getStoreLocale($storeId),
                 'id_shop' => $storeId
             ]);
 
             $curl = $this->_curlClientFactory->create();
-            $curl->setOptions([
-                CURLOPT_URL => $this->_endpoint . '/registerPopupSubscription',
-                CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
-                CURLOPT_RETURNTRANSFER => true,
-                CURLOPT_ENCODING => '',
-                CURLOPT_MAXREDIRS => 10,
-                CURLOPT_TIMEOUT => 30,
-                CURLOPT_CUSTOMREQUEST => 'POST',
-                CURLOPT_HTTPHEADER => [
-                    'Cache-Control: no-cache',
-                    'Content-Type: application/x-www-form-urlencoded',
-                ],
-                CURLOPT_POSTFIELDS => $postfields
-            ]);
-
-            $curl->post('', '');
+            $curl->addHeader('Cache-Control', 'no-cache');
+            $curl->addHeader('Content-Type', 'application/x-www-form-urlencoded');
+            $curl->post($this->_endpoint . '/registerPopupSubscription', $postfields);
 
             $this->_kilibaLogger->addLog(
                 KilibaLogger::LOG_TYPE_INFO,

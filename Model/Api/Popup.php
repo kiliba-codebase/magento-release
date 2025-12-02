@@ -251,6 +251,7 @@ class Popup extends AbstractApiAction implements PopupInterface
             if ($popupType === "promoCodeFirstPurchase") {
                 $configurationConfigKey = ConfigHelper::XML_PATH_POPUP_PROMOCODEFIRSTPURCHASE_CONFIGURATION;
                 $activationConfigKey = ConfigHelper::XML_PATH_POPUP_PROMOCODEFIRSTPURCHASE_ACTIVATION;
+                $popupIdentifier = "promo-code-first-purchase";
             } else {
                 $this->logRegistrationFailure($email, "Invalid popup type: " . $popupType);
                 sleep(2);
@@ -376,7 +377,7 @@ class Popup extends AbstractApiAction implements PopupInterface
 
             // Ping Kiliba
             $this->kilibaCaller->registerPopupSubscription(
-                $popupType,
+                $popupIdentifier,
                 ['email' => $email, 'subscribe' => $hasSubscribed],
                 $storeId,
                 $websiteId
