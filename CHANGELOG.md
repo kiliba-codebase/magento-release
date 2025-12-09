@@ -1,6 +1,8 @@
 # Changelog
 All notable changes to this project will be documented in this file.
 
+## [2.7.1] - 09/12/2025
+- Add pop-up registrations pull data.
 ## [2.7.0] - 28/11/2025
 - Add **promo code first purchase** pop-up.
 ## [2.6.3] - 27/10/2025

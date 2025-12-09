@@ -82,7 +82,7 @@ class Collect extends AbstractApiAction implements CollectInterface
         }
 
         
-        $authorizedModels=['deleted_customer','deleted_product','product','visit','customer','country','order','quote','category','priceRule','catalogRule','coupon','deleted_priceRule','deleted_catalogRule','customerGroup'];
+        $authorizedModels=['deleted_customer','deleted_product','product','visit','customer','country','order','quote','category','priceRule','catalogRule','coupon','deleted_priceRule','deleted_catalogRule','customerGroup','popupCustomer'];
         if (!in_array($model, $authorizedModels)) {
             $result = ["success" => false, "error" => "Unauthorized model"];
             return [$result];
