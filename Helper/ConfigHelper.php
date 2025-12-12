@@ -23,26 +23,37 @@ class ConfigHelper extends \Magento\Framework\App\Helper\AbstractHelper
     const XML_PATH_FLUX_TOKEN = "kiliba/connector/flux_token";
     const XML_PATH_LOG_LEVEL = "kiliba/connector/log_level";
 
+    const XML_PATH_WEBHOOK_CART_ENABLED = "kiliba/connector/webhook_cart_enabled";
+    const XML_PATH_WEBHOOK_ORDER_ENABLED = "kiliba/connector/webhook_order_enabled";
+
     const XML_PATH_POPUP_PROMOCODEFIRSTPURCHASE_CONFIGURATION = "kiliba/connector/popup_promocodefirstpurchase_configuration";
     const XML_PATH_POPUP_PROMOCODEFIRSTPURCHASE_ACTIVATION = "kiliba/connector/popup_promocodefirstpurchase_activation";
 
     const CONFIG_NAME_DEBUG_MODE = "TESTING_ENVIRONMENT";
     const CONFIG_NAME_CLIENT_ID = "ID_ACCOUNT_THATSOWL";
     const CONFIG_NAME_LOG_LEVEL = "LOG_LEVEL";
+    const CONFIG_NAME_WEBHOOK_CART_ENABLED = "WEBHOOK_CART_ENABLED";
+    const CONFIG_NAME_WEBHOOK_ORDER_ENABLED = "WEBHOOK_ORDER_ENABLED";
 
     const CONFIG_MAPPING = [
         self::CONFIG_NAME_CLIENT_ID => self::XML_PATH_CLIENT_ID,
-        self::CONFIG_NAME_LOG_LEVEL => self::XML_PATH_LOG_LEVEL
+        self::CONFIG_NAME_LOG_LEVEL => self::XML_PATH_LOG_LEVEL,
+        self::CONFIG_NAME_WEBHOOK_CART_ENABLED => self::XML_PATH_WEBHOOK_CART_ENABLED,
+        self::CONFIG_NAME_WEBHOOK_ORDER_ENABLED => self::XML_PATH_WEBHOOK_ORDER_ENABLED
     ];
 
     const CONFIG_SCOPE = [
         self::CONFIG_NAME_CLIENT_ID => ScopeInterface::SCOPE_WEBSITES,
         self::CONFIG_NAME_LOG_LEVEL => ScopeConfigInterface::SCOPE_TYPE_DEFAULT,
+        self::CONFIG_NAME_WEBHOOK_CART_ENABLED => ScopeInterface::SCOPE_WEBSITES,
+        self::CONFIG_NAME_WEBHOOK_ORDER_ENABLED => ScopeInterface::SCOPE_WEBSITES,
     ];
 
     const CONFIG_CHANGE_ALLOWED = [
         self::CONFIG_NAME_CLIENT_ID,
         self::CONFIG_NAME_LOG_LEVEL,
+        self::CONFIG_NAME_WEBHOOK_CART_ENABLED,
+        self::CONFIG_NAME_WEBHOOK_ORDER_ENABLED,
     ];
 
 
@@ -328,5 +339,27 @@ class ConfigHelper extends \Magento\Framework\App\Helper\AbstractHelper
      */
     public function extractLangFromLocale($idLang) {
         return strpos($idLang, "_") !== false ? explode("_", $idLang)[0] : $idLang;
+    }
+
+    /**
+     * Check if cart webhook is enabled (enabled by default)
+     * @param int $websiteId
+     * @return bool
+     */
+    public function isCartWebhookEnabled($websiteId = null) {
+        $value = $this->getConfigWithoutCache(self::XML_PATH_WEBHOOK_CART_ENABLED, $websiteId);
+        // Default to enabled (true) if not set
+        return $value === null || $value === false || $value === '' || $value === '1' || $value === 1 || $value === true;
+    }
+
+    /**
+     * Check if order webhook is enabled (enabled by default)
+     * @param int $websiteId
+     * @return bool
+     */
+    public function isOrderWebhookEnabled($websiteId = null) {
+        $value = $this->getConfigWithoutCache(self::XML_PATH_WEBHOOK_ORDER_ENABLED, $websiteId);
+        // Default to enabled (true) if not set
+        return $value === null || $value === false || $value === '' || $value === '1' || $value === 1 || $value === true;
     }
 }

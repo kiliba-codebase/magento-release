@@ -22,6 +22,12 @@
             <resource ref="anonymous" />
         </resources>
     </route>
+    <route url="/V1/kiliba-connector/setConfig/" method="POST">
+        <service class="Kiliba\Connector\Api\Module\ConfigurationInterface" method="setConfig"/>
+        <resources>
+            <resource ref="anonymous" />
+        </resources>
+    </route>
 
     <route url="/V1/kiliba-connector/getLog/" method="POST">
         <service class="Kiliba\Connector\Api\Module\LogInterface" method="getLogs"/>

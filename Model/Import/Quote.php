@@ -23,9 +23,6 @@ use Kiliba\Connector\Helper\CookieHelper;
 
 class Quote extends AbstractModel
 {
-
-    const PARAM_ENHANCED = "enhanced";
-
     /**
      * @var CollectionFactory
      */
@@ -72,11 +69,6 @@ class Quote extends AbstractModel
      * @var string
      */
     protected $_optionUseImageFromConfigurableChild;
-    
-    /**
-     * @var bool
-     */
-    protected $enhancedMode;
 
     public function __construct(
         ConfigHelper $configHelper,
@@ -112,8 +104,6 @@ class Quote extends AbstractModel
         $this->_timezone = $timezone;
 
         $this->_mediaUrl = array();
-
-        $this->enhancedMode = $this->_request->getParam(self::PARAM_ENHANCED) === "true";
     }
 
     /**
@@ -199,41 +189,12 @@ class Quote extends AbstractModel
                 }
             } catch (\Exception $e) {}
 
-            // Get customer details if enhanced mode
-            $customer = null;
-            if($this->enhancedMode) {
-                try {
-                    // Logged
-                    if($quote->getCustomerId()) {
-                        $customer = $this->_customerRepository->getById($quote->getCustomerId());
-                    }
-                    // Guest
-                    else if($customer_email) {
-                        $customer = $this->_customerRepository->get($customer_email);
-                    }
-                    // No one
-                    else {
-                        $customer = null;
-                    }
-
-                    if($customer) {
-                        $customer = array(
-                            "id" => (string) $customer->getId(),
-                            "email" => (string) $customer->getEmail(),
-                            "firstname" => (string) $customer->getFirstName(),
-                            "lastname" => (string) $customer->getLastName()          
-                        );
-                    }
-                } catch (\Exception $e) {}
-            }
-
             $quoteLocale = $this->_configHelper->getStoreLocale($quote->getStoreId());
 
             $data = [
                 "id" => (string)$quote->getId(),
                 "customer_email" => (string)$customer_email,
                 "customer_email_type" => (string)$customer_email_type,
-                "customer" => $customer,
                 "id_shop_group" => (string)$websiteId,
                 "id_shop" => (string)$quote->getStoreId(),
                 "id_customer" => (string)$quote->getCustomerId(),
@@ -279,45 +240,6 @@ class Quote extends AbstractModel
             $storeId = $quoteItem->getStoreId();
 
             $product = $quoteProduct;
-            $imageUrl = "";
-            $absoluteUrl = "";
-
-            if($this->enhancedMode) {
-                $configurableChildProduct = $quoteItem->getOptionByCode('simple_product');
-
-                $product = $this->_productRepository->getById(
-                    $configurableChildProduct ? $configurableChildProduct->getProduct()->getId() : $quoteProduct->getId(),
-                    false,
-                    $storeId
-                );
-
-                if (!isset($this->_mediaUrl[$storeId])) {
-                    $store = $this->_configHelper->getStoreById($websiteId);
-                    $this->_mediaUrl[$storeId] = $store->getBaseUrl(\Magento\Framework\UrlInterface::URL_TYPE_MEDIA);
-                }
-
-                // Read option from cache
-                // Or from config (defined in Settings > Sales > Checkout)
-                $this->_optionUseImageFromConfigurableChild = $optionUseImageFromConfigurableChild =
-                    $this->_optionUseImageFromConfigurableChild
-                        ? $this->_optionUseImageFromConfigurableChild
-                        : $this->_configHelper->getStoreConfig(
-                            \Magento\ConfigurableProduct\Model\Product\Configuration\Item\ItemProductResolver::CONFIG_THUMBNAIL_SOURCE,
-                            $storeId
-                        );
-
-                $childThumbnail = $product->getThumbnail();
-
-                // Check if we need to use the configurable child image and if child has own image
-                if($optionUseImageFromConfigurableChild === \Magento\Catalog\Model\Config\Source\Product\Thumbnail::OPTION_USE_OWN_IMAGE && $childThumbnail && $childThumbnail !== "no_selection") {
-                    $image = $childThumbnail;
-                } else { // Otherwise keep parent image
-                    $image = $quoteProduct->getThumbnail();
-                }
-
-                $imageUrl = $this->_mediaUrl[$storeId] . "catalog/product" . $image;
-                $absoluteUrl = $quoteProduct->getProductUrl(); // Always take parent product URL
-            }
 
             return [
                 "id_product" => (string) $product->getId(),
@@ -331,8 +253,6 @@ class Quote extends AbstractModel
                 "total_unit_wt" => $this->_formatPrice($quoteItem->getBasePriceInclTax()),
                 "product_type" => $quoteProduct->getTypeId(),
                 "name" => $quoteProduct->getName(),
-                "absolute_url" => $absoluteUrl,
-                "image_url" => $imageUrl,
                 "id_category_default" => $this->_formatterHelper->getLowerCategory(
                     $product->getCategoryIds(),
                     $product->getStoreId()

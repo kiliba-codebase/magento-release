@@ -21,7 +21,6 @@ class KilibaCaller extends \Magento\Framework\App\Helper\AbstractHelper
 {
 
     const APP_URL_PROD = 'https://backend-api.production-api.kiliba.eu';
-    const APP_URL_PREPROD = 'https://backend-api.preprod-api.kiliba.eu';
     const ENDPOINT = '/external_api';
 
     const METHOD_CHECK_FROM = "/checkformmagento";

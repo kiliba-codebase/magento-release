@@ -1,6 +1,10 @@
 # Changelog
 All notable changes to this project will be documented in this file.
 
+## [2.8.0] - 10/12/2025
+- Push cart and order webhooks to Kiliba webhook endpoint
+- Remove enhanced mode for carts
+- Ping Kiliba on module setup:upgrade (apply data patch)
 ## [2.7.1] - 09/12/2025
 - Add pop-up registrations pull data.
 ## [2.7.0] - 28/11/2025

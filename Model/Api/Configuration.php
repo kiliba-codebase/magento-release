@@ -273,4 +273,83 @@ class Configuration extends AbstractApiAction implements ConfigurationInterface
             ]);
         }
     }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function setConfig()
+    {
+        $requestCheck = $this->_checkRequest();
+        if(!$requestCheck["success"]) {
+            return array($requestCheck);
+        }
+
+        $websiteId = $requestCheck["websiteId"];
+        $params = $this->_request->getParams();
+
+        $results = array();
+        $errors = array();
+
+        // Process each configuration parameter
+        foreach ($params as $key => $value) {
+            // Skip authentication parameters
+            if (in_array($key, array('accountId', 'token'))) {
+                continue;
+            }
+
+            // Check if this config is in the allowed list
+            if (!in_array($key, ConfigHelper::CONFIG_CHANGE_ALLOWED)) {
+                $errors[] = array(
+                    'config' => $key,
+                    'message' => 'Configuration not allowed to be changed via API'
+                );
+                continue;
+            }
+
+            // Get the XML path for this config
+            if (!isset(ConfigHelper::CONFIG_MAPPING[$key])) {
+                $errors[] = array(
+                    'config' => $key,
+                    'message' => 'Configuration mapping not found'
+                );
+                continue;
+            }
+
+            $xmlPath = ConfigHelper::CONFIG_MAPPING[$key];
+            // PHP 7.1 compatible null coalescing
+            $scope = isset(ConfigHelper::CONFIG_SCOPE[$key]) ? ConfigHelper::CONFIG_SCOPE[$key] : ScopeInterface::SCOPE_WEBSITES;
+
+            try {
+                // For boolean values, convert to 0/1
+                if (is_bool($value)) {
+                    $value = $value ? '1' : '0';
+                } elseif (is_string($value) && strtolower($value) === 'true') {
+                    $value = '1';
+                } elseif (is_string($value) && strtolower($value) === 'false') {
+                    $value = '0';
+                }
+
+                // Save the configuration
+                $scopeId = ($scope === ScopeInterface::SCOPE_WEBSITES) ? $websiteId : 0;
+                $this->_configHelper->saveDataToCoreConfig($xmlPath, $value, $scopeId);
+
+                $results[] = array(
+                    'config' => $key,
+                    'success' => true,
+                    'value' => $value
+                );
+            } catch (\Exception $e) {
+                $errors[] = array(
+                    'config' => $key,
+                    'message' => 'Error saving configuration: ' . $e->getMessage()
+                );
+            }
+        }
+
+        return array(array(
+            'success' => count($errors) === 0,
+            'results' => $results,
+            'errors' => $errors
+        ));
+    }
 }

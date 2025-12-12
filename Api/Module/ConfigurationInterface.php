@@ -24,4 +24,10 @@ interface ConfigurationInterface
      * @return string[]
      */
     public function uploadImage();
+
+    /**
+     * Set configuration values
+     * @return string[]
+     */
+    public function setConfig();
 }

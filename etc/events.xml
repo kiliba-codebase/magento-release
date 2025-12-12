@@ -19,6 +19,10 @@
     </event>
     <event name="sales_quote_save_after">
         <observer name="improve_quote_data" instance="Kiliba\Connector\Observer\Quote\SalesQuoteSaveAfterObserver" />
+        <observer name="send_cart_webhook" instance="Kiliba\Connector\Observer\Quote\SendCartWebhookObserver" />
+    </event>
+    <event name="sales_order_save_after">
+        <observer name="send_order_webhook" instance="Kiliba\Connector\Observer\Order\SendOrderWebhookObserver" />
     </event>
     <event name="customer_login">
         <observer name="persist_customer_info" instance="Kiliba\Connector\Observer\Customer\LogLastLoginAtObserver" />
