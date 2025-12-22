@@ -1,6 +1,9 @@
 # Changelog
 All notable changes to this project will be documented in this file.
 
+## [2.8.1] - 22/12/2025
+- Ajoute la collecte `customers_guest` pour synchroniser les abonnés newsletter invités (email uniquement, statut, métadonnées).
+
 ## [2.8.0] - 10/12/2025
 - Push cart and order webhooks to Kiliba webhook endpoint
 - Remove enhanced mode for carts

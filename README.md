@@ -25,6 +25,7 @@ Les échanges attendus par Kiliba sont couverts par les appels suivants :
 - **Onboarding** : `Helper/KilibaCaller::checkBeforeStartSync()` envoie un `POST` vers `https://backend-api.production-api.kiliba.eu/external_api/checkformmagento` avec `id_account`, `url_shop`, `token`, `locale` et `url_logo` pour valider le CMS, refuser les doublons de boutique et déclencher la synchronisation côté Kiliba.
 - **Présence du module** : `POST /rest/all/V1/kiliba-connector/debug?token=...&accountId=...` renvoie un tableau dont le premier élément contient `version`, confirmant l’installation du module.
 - **Récupération de données** : `POST /rest/all/V1/kiliba-connector/pullDatas` attend `model`, `limit`, `offset`, `token` et `accountId` et retourne un tableau où le premier objet expose `results` (ainsi que `total_size`, `model`, `limit`, `offset`).
+- **Guests newsletter** : `POST /rest/all/V1/kiliba-connector/pullDatas?model=customers_guest` retourne les inscrits à la newsletter dont `customer_id = 0` (uniquement l’adresse e-mail et les métadonnées d’inscription / statut).
 - **Popups Kiliba** :
   - Configuration : `POST /rest/all/V1/kiliba-connector/popup/{popupType}/configuration` prend `token`, `accountId`, `config` (JSON) et retourne `success: true` en première position si l’enregistrement réussit.
   - Activation : `POST /rest/all/V1/kiliba-connector/popup/{popupType}/activation` prend `token`, `accountId`, `activation` (timestamp Unix ou `0`) et retourne `success: true`.
