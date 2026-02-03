@@ -148,6 +148,9 @@ class Order extends AbstractModel
                 );
             }
 
+            // Extract applied promo codes (supports multiple codes separated by comma/semicolon)
+            $promoCodes = $this->extractPromoCodes($order->getCouponCode(), $order->getBaseDiscountAmount());
+
             $data = [
                 "id" => (string) $order->getId(),
                 "id_shop_group" => (string) $websiteId,
@@ -158,6 +161,7 @@ class Order extends AbstractModel
                 "id_cart" => (string) $order->getQuoteId(),
                 "current_state" => (string) $order->getStatus(),
                 "reference" => (string) $order->getIncrementId(),
+                "promo_codes" => $promoCodes,
                 "id_address_invoice" => (string) $order->getBillingAddressId(),
                 "id_address_delivery" => (string) $shippingAddressId,
                 "date_add" => (string) $order->getCreatedAt(),
@@ -184,6 +188,37 @@ class Order extends AbstractModel
             );
             return ["error" => $e->getMessage()];
         }
+    }
+
+    /**
+     * Extract promo codes from coupon code string with discount amount.
+     * Handles multiple codes separated by commas or semicolons.
+     *
+     * @param string|null $couponCode
+     * @param float|string|null $discountAmount
+     * @return array[] array of ['code' => string, 'amount' => string]
+     */
+    protected function extractPromoCodes($couponCode, $discountAmount)
+    {
+        if (empty($couponCode)) {
+            return [];
+        }
+
+        $amount = $this->_formatPrice(abs((float)$discountAmount));
+        $parts = preg_split('/[,;]/', $couponCode);
+        $promoCodes = [];
+
+        foreach ($parts as $part) {
+            $code = trim($part);
+            if ($code !== '') {
+                $promoCodes[] = [
+                    "code" => (string)$code,
+                    "amount" => $amount,
+                ];
+            }
+        }
+
+        return $promoCodes;
     }
 
     /**
@@ -266,6 +301,16 @@ class Order extends AbstractModel
                 [
                     "name" => "reference",
                     "type" => "string"
+                ],
+                [
+                    "name" => "promo_codes",
+                    "type" => [
+                        "type" => "array",
+                        "items" => [
+                            "type" => "map",
+                            "values" => "string"
+                        ]
+                    ]
                 ],
                 [
                     "name" => "id_address_invoice",

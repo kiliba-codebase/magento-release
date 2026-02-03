@@ -79,11 +79,25 @@ class UpgradeSchema implements UpgradeSchemaInterface
                         'Customer email'
                     )
                     ->addColumn(
+                        'phone',
+                        \Magento\Framework\DB\Ddl\Table::TYPE_TEXT,
+                        64,
+                        ['nullable' => true],
+                        'Customer phone'
+                    )
+                    ->addColumn(
                         'subscribe',
                         \Magento\Framework\DB\Ddl\Table::TYPE_SMALLINT,
                         1,
                         ['nullable' => false, 'unsigned' => false, 'default' => 0],
                         'Newsletter subscription flag'
+                    )
+                    ->addColumn(
+                        'optin_sms',
+                        \Magento\Framework\DB\Ddl\Table::TYPE_SMALLINT,
+                        1,
+                        ['nullable' => false, 'unsigned' => false, 'default' => 0],
+                        'SMS opt-in flag'
                     )
                     ->addColumn(
                         'subscribe_ip',
@@ -124,6 +138,33 @@ class UpgradeSchema implements UpgradeSchemaInterface
                     );
                     
                 $installer->getConnection()->createTable($table);
+            }
+        }
+
+        if (version_compare($context->getVersion(), '2.8.4', '<') && $installer->tableExists('kiliba_connector_popup_customers')) {
+            if (!$installer->getConnection()->tableColumnExists($installer->getTable('kiliba_connector_popup_customers'), 'phone')) {
+                $installer->getConnection()->addColumn(
+                    $installer->getTable('kiliba_connector_popup_customers'),
+                    'phone',
+                    [
+                        'type' => \Magento\Framework\DB\Ddl\Table::TYPE_TEXT,
+                        'nullable' => true,
+                        'length' => 64,
+                        'comment' => 'Customer phone'
+                    ]
+                );
+            }
+            if (!$installer->getConnection()->tableColumnExists($installer->getTable('kiliba_connector_popup_customers'), 'optin_sms')) {
+                $installer->getConnection()->addColumn(
+                    $installer->getTable('kiliba_connector_popup_customers'),
+                    'optin_sms',
+                    [
+                        'type' => \Magento\Framework\DB\Ddl\Table::TYPE_SMALLINT,
+                        'nullable' => false,
+                        'default' => 0,
+                        'comment' => 'SMS opt-in flag'
+                    ]
+                );
             }
         }
         

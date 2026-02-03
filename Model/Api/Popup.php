@@ -201,7 +201,7 @@ class Popup extends AbstractApiAction implements PopupInterface
                         }
                     }
                     // User not connected or hasn't made orders - eligible
-                } else {
+                } else if ($eligibilityMode !== 'all') {
                     // For other modes: only allow if user is not connected
                     if ($customerEmail) {
                         return [[
@@ -284,6 +284,8 @@ class Popup extends AbstractApiAction implements PopupInterface
 
             // Get subscription status
             $hasSubscribed = $this->_request->getParam('subscribe') === 'true';
+            $phone = trim((string)$this->_request->getParam('phone'));
+            $optinSms = $this->_request->getParam('optin_sms') === 'true';
 
             // Check lang (store locale)
             $idLang = $this->_configHelper->getStoreLocale($storeId);
@@ -299,6 +301,8 @@ class Popup extends AbstractApiAction implements PopupInterface
                 $websiteId
             );
             $popupConfiguration = json_decode($popupConfigJson, true);
+            $isAllEligibility = isset($popupConfiguration['eligibilityMode'])
+                && $popupConfiguration['eligibilityMode'] === 'all';
 
             // Check required subscription
             if (isset($popupConfiguration['subscriptionCheckboxRequired']) 
@@ -330,26 +334,28 @@ class Popup extends AbstractApiAction implements PopupInterface
             }
 
             // Check if customer is eligible to popup
-            if (isset($popupConfiguration['eligibilityMode']) 
-                && $popupConfiguration['eligibilityMode'] === 'first-purchase'
-            ) {
-                $hasEmailOrdered = $this->customerHelper->hasEmailOrdered($email);
-                if ($hasEmailOrdered) {
-                    $this->logRegistrationFailure($email, "Customer not eligible");
-                    sleep(2);
-                    return $this->jsonResponse(400, "CUSTOMER_NOT_ELIGIBLE");
-                }
-            } else {
-                $hasAccount = $this->customerHelper->hasAccount($email);
-                if ($hasAccount) {
-                    $this->logRegistrationFailure($email, "Customer exists");
-                    sleep(2);
-                    return $this->jsonResponse(400, "CUSTOMER_EXISTS");
+            if(!$isAllEligibility) {
+                if (isset($popupConfiguration['eligibilityMode']) 
+                    && $popupConfiguration['eligibilityMode'] === 'first-purchase'
+                ) {
+                    $hasEmailOrdered = $this->customerHelper->hasEmailOrdered($email);
+                    if ($hasEmailOrdered) {
+                        $this->logRegistrationFailure($email, "Customer not eligible");
+                        sleep(2);
+                        return $this->jsonResponse(400, "CUSTOMER_NOT_ELIGIBLE");
+                    }
+                } else {
+                    $hasAccount = $this->customerHelper->hasAccount($email);
+                    if ($hasAccount) {
+                        $this->logRegistrationFailure($email, "Customer exists");
+                        sleep(2);
+                        return $this->jsonResponse(400, "CUSTOMER_EXISTS");
+                    }
                 }
             }
 
             // Check if customer email has already received an email for that popup
-            if ($this->popupCustomerResource->isEmailRegistered($email, $popupType)) {
+            if($this->popupCustomerResource->isEmailRegistered($email, $popupType)) {
                 $this->logRegistrationFailure($email, "Customer already registered in popup");
                 sleep(2);
                 return $this->jsonResponse(400, "CUSTOMER_ALREADY_REGISTERED");
@@ -369,16 +375,25 @@ class Popup extends AbstractApiAction implements PopupInterface
             $popupCustomer = $this->popupCustomerFactory->create();
             $popupCustomer->setPopupType($popupType);
             $popupCustomer->setEmail($email);
+            $popupCustomer->setData('phone', $phone);
             $popupCustomer->setSubscribe($hasSubscribed);
+            $popupCustomer->setData('optin_sms', $optinSms ? 1 : 0);
             $popupCustomer->setSubscribeIp($hasSubscribed ? $ip : '');
             $popupCustomer->setWebsiteId($websiteId);
+
+            if($isAllEligibility && $this->popupCustomerResource->isEmailRegistered($email, $popupType)) {
+                $existing = $this->popupCustomerResource->getRegistrationsByEmailAndType($email, $popupType);
+                if(is_array($existing) && count($existing) > 0) {
+                    $popupCustomer->setData('popup_customer_id', $existing[0]['popup_customer_id']);
+                }
+            }
 
             $this->popupCustomerResource->save($popupCustomer);
 
             // Ping Kiliba
             $this->kilibaCaller->registerPopupSubscription(
                 $popupIdentifier,
-                ['email' => $email, 'subscribe' => $hasSubscribed],
+                ['email' => $email, 'subscribe' => $hasSubscribed, 'phone' => $phone, 'optin_sms' => $optinSms],
                 $storeId,
                 $websiteId
             );

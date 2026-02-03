@@ -241,11 +241,25 @@ class InstallSchema implements \Magento\Framework\Setup\InstallSchemaInterface {
                         'Customer email'
                     )
                     ->addColumn(
+                        'phone',
+                        \Magento\Framework\DB\Ddl\Table::TYPE_TEXT,
+                        64,
+                        ['nullable' => true],
+                        'Customer phone'
+                    )
+                    ->addColumn(
                         'subscribe',
                         \Magento\Framework\DB\Ddl\Table::TYPE_SMALLINT,
                         1,
                         ['nullable' => false, 'unsigned' => false, 'default' => 0],
                         'Newsletter subscription flag'
+                    )
+                    ->addColumn(
+                        'optin_sms',
+                        \Magento\Framework\DB\Ddl\Table::TYPE_SMALLINT,
+                        1,
+                        ['nullable' => false, 'unsigned' => false, 'default' => 0],
+                        'SMS opt-in flag'
                     )
                     ->addColumn(
                         'subscribe_ip',

@@ -56,4 +56,5 @@ class PopupCustomer extends AbstractDb
 
         return $connection->fetchAll($select);
     }
+
 }

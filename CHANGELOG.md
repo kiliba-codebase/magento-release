@@ -1,6 +1,13 @@
 # Changelog
 All notable changes to this project will be documented in this file.
 
+## [2.8.3] - 03/02/2026
+- Add SMS optin for pop-up registrations
+
+## [2.8.2] - 20/01/2026
+- Fix db schema padding on popup subscribe column to restore setup:upgrade in developer mode.
+- Expose order promo codes in API export/schema.
+
 ## [2.8.1] - 22/12/2025
 - Ajoute la collecte `customers_guest` pour synchroniser les abonnés newsletter invités (email uniquement, statut, métadonnées).
 

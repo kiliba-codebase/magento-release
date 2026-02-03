@@ -62,7 +62,9 @@
         </constraint>
         <column name="popup_type" nullable="false" xsi:type="varchar" length="255" comment="Type of popup"/>
         <column name="email" nullable="false" xsi:type="varchar" length="255" comment="Customer email"/>
-        <column name="subscribe" nullable="false" xsi:type="smallint" padding="1" unsigned="false" default="0" comment="Newsletter subscription flag"/>
+        <column name="phone" nullable="true" xsi:type="varchar" length="64" comment="Customer phone"/>
+        <column name="subscribe" nullable="false" xsi:type="smallint" unsigned="false" default="0" comment="Newsletter subscription flag"/>
+        <column name="optin_sms" nullable="false" xsi:type="smallint" unsigned="false" default="0" comment="SMS opt-in flag"/>
         <column name="subscribe_ip" nullable="true" xsi:type="varchar" length="45" comment="IP address if subscribed"/>
         <column xsi:type="smallint" name="website_id" unsigned="true" nullable="false" identity="false"/>
         <column name="created_at" nullable="false" xsi:type="timestamp" default="CURRENT_TIMESTAMP"/>
