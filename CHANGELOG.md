@@ -1,6 +1,9 @@
 # Changelog
 All notable changes to this project will be documented in this file.
 
+## [2.8.4] - 07/04/2026
+- Add translate for configurable products
+
 ## [2.8.3] - 03/02/2026
 - Add SMS optin for pop-up registrations
 

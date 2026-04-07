@@ -36,7 +36,8 @@ class Product extends AbstractModel
         \Magento\Catalog\Model\Product\Type::TYPE_SIMPLE,
         \Magento\Catalog\Model\Product\Type::TYPE_VIRTUAL,
         \Magento\Downloadable\Model\Product\Type::TYPE_DOWNLOADABLE,
-        \Magento\Catalog\Model\Product\Type::TYPE_BUNDLE
+        \Magento\Catalog\Model\Product\Type::TYPE_BUNDLE,
+        Configurable::TYPE_CODE,
     ];
 
     /**
@@ -354,7 +355,7 @@ class Product extends AbstractModel
                 $translatedStoreLocale = $this->_configHelper->getStoreLocale($translatedStoreId);
 
                 $translatedProductId = $productParent ? $productParent->getId() : $product->getId();
-                $translatedProduct = $this->_productRepository->getById($product->getId(), false, $translatedStoreId);
+                $translatedProduct = $this->_productRepository->getById($translatedProductId, false, $translatedStoreId);
 
                 $translatedName = (string) $translatedProduct->getName();
                 $translatedDescription = (string) $translatedProduct->getDescription();
@@ -483,7 +484,7 @@ class Product extends AbstractModel
      */
     protected function _getProductParent($product, $websiteId)
     {
-        if (in_array($product->getTypeId(), self::PRODUCT_TYPE_SYNC)) {
+        if ($product->getTypeId() !== Configurable::TYPE_CODE && in_array($product->getTypeId(), self::PRODUCT_TYPE_SYNC)) {
             $parentProductIds = $this->_configurable->getParentIdsByChild($product->getId());
             if (!empty($parentProductIds)) {
                 // need to specify store ?
