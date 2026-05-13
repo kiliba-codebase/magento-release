@@ -1,11 +1,17 @@
 <?php
     $locale = $block->getLocale();
-
-    $finalConfig = json_encode(
-        array(
-            "locale" => $locale
-        )
-    );
+    $popupType = "promo-code-first-purchase";
+    $popupTypeKey = "promoCodeFirstPurchase";
+    $popupJsUrl = $block->getViewFileUrl("Kiliba_Connector::js/popup.min.js");
+    $popupCssUrl = $block->getViewFileUrl("Kiliba_Connector::css/popup.min.css");
 ?>
 
-<script id="kilibapopup" type="application/json"><?= $finalConfig ?></script>
+<div
+    id="kilibapopup"
+    data-locale="<?= $block->escapeHtmlAttr($locale) ?>"
+    data-popup-type="<?= $block->escapeHtmlAttr($popupType) ?>"
+    data-popup-type-key="<?= $block->escapeHtmlAttr($popupTypeKey) ?>"
+    data-popup-js-url="<?= $block->escapeHtmlAttr($popupJsUrl) ?>"
+    data-popup-css-url="<?= $block->escapeHtmlAttr($popupCssUrl) ?>"
+    hidden
+></div>

@@ -1,6 +1,9 @@
 # Changelog
 All notable changes to this project will be documented in this file.
 
+## [2.8.5] - 12/05/2026
+- Add native Magento wishlist pull data (`pullDatas?model=wishlist`) for the Kiliba wishlist scenario.
+
 ## [2.8.4] - 07/04/2026
 - Add translate for configurable products
 

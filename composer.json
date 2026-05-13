@@ -2,7 +2,7 @@
   "name": "kiliba/module-connector",
   "description": "Kiliba",
   "type": "magento2-module",
-  "version": "2.8.4",
+  "version": "2.8.5",
   "license": "OSL-3.0",
   "require": {
     "php": ">=7.0.2",
@@ -13,6 +13,7 @@
     "magento/module-directory" : ">=100.2.0",
     "magento/module-store" : ">=100.2.0",
     "magento/module-sales-rule" : ">=101.0.0",
+    "magento/module-wishlist" : ">=101.1.0",
     "ext-curl": "*"
   },
   "autoload": {

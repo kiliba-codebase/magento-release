@@ -32,6 +32,7 @@
     <type name="Kiliba\Connector\Model\Import\CustomerGroupFactory" />
     <type name="Kiliba\Connector\Model\Import\PopupCustomerFactory" />
     <type name="Kiliba\Connector\Model\Import\CustomerGuestFactory" />
+    <type name="Kiliba\Connector\Model\Import\WishlistFactory" />
 
     <type name="Kiliba\Connector\Model\Import\FormatterResolver">
         <arguments>
@@ -50,6 +51,7 @@
                 <item name="customerGroup" xsi:type="string">Kiliba\Connector\Model\Import\CustomerGroupFactory</item>
                 <item name="popupCustomer" xsi:type="string">Kiliba\Connector\Model\Import\PopupCustomerFactory</item>
                 <item name="customers_guest" xsi:type="string">Kiliba\Connector\Model\Import\CustomerGuestFactory</item>
+                <item name="wishlist" xsi:type="string">Kiliba\Connector\Model\Import\WishlistFactory</item>
             </argument>
         </arguments>
     </type>
