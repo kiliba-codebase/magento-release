@@ -248,6 +248,20 @@ class InstallSchema implements \Magento\Framework\Setup\InstallSchemaInterface {
                         'Customer phone'
                     )
                     ->addColumn(
+                        'quiz_answers',
+                        \Magento\Framework\DB\Ddl\Table::TYPE_TEXT,
+                        '2M',
+                        ['nullable' => true],
+                        'Popup quiz answers JSON'
+                    )
+                    ->addColumn(
+                        'quiz_attributes',
+                        \Magento\Framework\DB\Ddl\Table::TYPE_TEXT,
+                        '2M',
+                        ['nullable' => true],
+                        'Popup quiz attributes JSON'
+                    )
+                    ->addColumn(
                         'subscribe',
                         \Magento\Framework\DB\Ddl\Table::TYPE_SMALLINT,
                         1,

@@ -61,8 +61,11 @@
             <column name="popup_customer_id"/>
         </constraint>
         <column name="popup_type" nullable="false" xsi:type="varchar" length="255" comment="Type of popup"/>
+        <column name="campaign_id" nullable="false" xsi:type="varchar" length="255" default="" comment="Popup campaign identifier"/>
         <column name="email" nullable="false" xsi:type="varchar" length="255" comment="Customer email"/>
         <column name="phone" nullable="true" xsi:type="varchar" length="64" comment="Customer phone"/>
+        <column name="quiz_answers" nullable="true" xsi:type="text" length="2M" comment="Popup quiz answers JSON"/>
+        <column name="quiz_attributes" nullable="true" xsi:type="text" length="2M" comment="Popup quiz attributes JSON"/>
         <column name="subscribe" nullable="false" xsi:type="smallint" unsigned="false" default="0" comment="Newsletter subscription flag"/>
         <column name="optin_sms" nullable="false" xsi:type="smallint" unsigned="false" default="0" comment="SMS opt-in flag"/>
         <column name="subscribe_ip" nullable="true" xsi:type="varchar" length="45" comment="IP address if subscribed"/>
@@ -75,6 +78,7 @@
         <index referenceId="KILIBA_CONNECTOR_POPUP_CUSTOMERS_EMAIL_POPUP_TYPE" indexType="btree">
             <column name="email"/>
             <column name="popup_type"/>
+            <column name="campaign_id"/>
         </index>
     </table>
 </schema>

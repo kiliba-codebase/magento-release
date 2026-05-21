@@ -1,5 +1,6 @@
 <?php
     $locale = $block->getLocale();
+    $categoryIds = $block->getCategoryIds();
     $popupType = "promo-code-first-purchase";
     $popupTypeKey = "promoCodeFirstPurchase";
     $popupJsUrl = $block->getViewFileUrl("Kiliba_Connector::js/popup.min.js");
@@ -9,6 +10,7 @@
 <div
     id="kilibapopup"
     data-locale="<?= $block->escapeHtmlAttr($locale) ?>"
+    data-category-ids="<?= $block->escapeHtmlAttr(json_encode($categoryIds)) ?>"
     data-popup-type="<?= $block->escapeHtmlAttr($popupType) ?>"
     data-popup-type-key="<?= $block->escapeHtmlAttr($popupTypeKey) ?>"
     data-popup-js-url="<?= $block->escapeHtmlAttr($popupJsUrl) ?>"

@@ -48,8 +48,11 @@
         "column": {
             "popup_customer_id": true,
             "popup_type": true,
+            "campaign_id": true,
             "email": true,
             "phone": true,
+            "quiz_answers": true,
+            "quiz_attributes": true,
             "subscribe": true,
             "optin_sms": true,
             "subscribe_ip": true,

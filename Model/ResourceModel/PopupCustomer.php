@@ -26,13 +26,14 @@ class PopupCustomer extends AbstractDb
      * @param string $popupType
      * @return bool
      */
-    public function isEmailRegistered($email, $popupType)
+    public function isEmailRegistered($email, $popupType, $campaignId = '')
     {
         $connection = $this->getConnection();
         $select = $connection->select()
             ->from($this->getMainTable(), ['popup_customer_id'])
             ->where('email = ?', $email)
             ->where('popup_type = ?', $popupType)
+            ->where('campaign_id = ?', (string)$campaignId)
             ->limit(1);
 
         $result = $connection->fetchOne($select);
@@ -46,13 +47,14 @@ class PopupCustomer extends AbstractDb
      * @param string $popupType
      * @return array
      */
-    public function getRegistrationsByEmailAndType($email, $popupType)
+    public function getRegistrationsByEmailAndType($email, $popupType, $campaignId = '')
     {
         $connection = $this->getConnection();
         $select = $connection->select()
             ->from($this->getMainTable())
             ->where('email = ?', $email)
-            ->where('popup_type = ?', $popupType);
+            ->where('popup_type = ?', $popupType)
+            ->where('campaign_id = ?', (string)$campaignId);
 
         return $connection->fetchAll($select);
     }

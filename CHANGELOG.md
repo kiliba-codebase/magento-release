@@ -1,6 +1,9 @@
 # Changelog
 All notable changes to this project will be documented in this file.
 
+## [2.8.6] - 20/05/2026
+- Resolve popup preview payloads through a short-lived Kiliba token instead of a long query string, avoiding `URI Too Long` failures on large V2 previews.
+
 ## [2.8.5] - 12/05/2026
 - Add native Magento wishlist pull data (`pullDatas?model=wishlist`) for the Kiliba wishlist scenario.
 

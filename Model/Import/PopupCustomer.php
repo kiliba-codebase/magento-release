@@ -131,8 +131,11 @@ class PopupCustomer extends AbstractModel
             $data = [
                 'id_popup_customer' => $popupCustomer->getPopupCustomerId(),
                 'popup_type' => $popupCustomer->getPopupType(),
+                'campaign_id' => (string)$popupCustomer->getData('campaign_id'),
                 'email' => $popupCustomer->getEmail(),
                 'phone' => (string)$popupCustomer->getData('phone'),
+                'quiz_answers' => (string)$popupCustomer->getData('quiz_answers'),
+                'quiz_attributes' => (string)$popupCustomer->getData('quiz_attributes'),
                 'subscribe' => (int)$popupCustomer->getSubscribe(),
                 'optin_sms' => (int)$popupCustomer->getData('optin_sms'),
                 'subscribe_ip' => $popupCustomer->getSubscribeIp(),

@@ -15,11 +15,25 @@ interface PopupInterface
     public function getPopupConfiguration($popupType);
 
     /**
+     * Resolve a popup preview token to a transient configuration payload.
+     * @param string $popupType Popup type (e.g., "promoCodeFirstPurchase")
+     * @return string[]
+     */
+    public function getPopupPreview($popupType);
+
+    /**
      * Register a customer subscription to the popup
      * @param string $popupType Popup type (e.g., "promoCodeFirstPurchase")
      * @return bool
      */
     public function registerSubscription($popupType);
+
+    /**
+     * Forward a popup display hit to Kiliba without local persistence.
+     * @param string $popupType Popup type (e.g., "promoCodeFirstPurchase")
+     * @return bool
+     */
+    public function registerDisplay($popupType);
 
     /**
      * Update popup configuration (via private API)

@@ -383,4 +383,145 @@ class KilibaCaller extends \Magento\Framework\App\Helper\AbstractHelper
             );
         }
     }
+
+    public function registerPopupDisplay($popupIdentifier, $popupData, $storeId, $websiteId)
+    {
+        try {
+            $accountId = $this->_configHelper->getClientId($websiteId);
+            $token = $this->_configHelper->getConfigWithoutCache(ConfigHelper::XML_PATH_FLUX_TOKEN, $websiteId);
+
+            $postfields = http_build_query([
+                'id_account' => $accountId,
+                'token' => $token,
+                'popup_type' => $popupIdentifier,
+                'popup_data' => json_encode($popupData),
+                'id_lang' => $this->_configHelper->getStoreLocale($storeId),
+                'id_shop' => $storeId
+            ]);
+
+            $curl = $this->_curlClientFactory->create();
+            $curl->addHeader('Cache-Control', 'no-cache');
+            $curl->addHeader('Content-Type', 'application/x-www-form-urlencoded');
+            $curl->setOption(CURLOPT_TIMEOUT, 5);
+            $curl->post($this->_endpoint . '/registerPopupDisplay', $postfields);
+        } catch (\Exception $e) {
+            $this->_kilibaLogger->addLog(
+                KilibaLogger::LOG_TYPE_ERROR,
+                'Register Popup Display Error',
+                $this->_serializer->serialize(['error' => $e->getMessage()]),
+                $websiteId
+            );
+        }
+    }
+
+    public function resolvePopupPreview($token)
+    {
+        try {
+            $normalizedToken = trim((string)$token);
+            if (empty($normalizedToken)) {
+                return null;
+            }
+
+            $curl = $this->_curlClientFactory->create();
+            $curl->addHeader('Cache-Control', 'no-cache');
+            $curl->get($this->_endpoint . '/resolvePopupPreview?token=' . rawurlencode($normalizedToken));
+
+            $decodedResponse = json_decode($curl->getBody(), true);
+            if (!is_array($decodedResponse) || empty($decodedResponse['success']) || !isset($decodedResponse['payload']) || !is_array($decodedResponse['payload'])) {
+                return null;
+            }
+
+            return $decodedResponse['payload'];
+        } catch (\Exception $e) {
+            $this->_kilibaLogger->addLog(
+                KilibaLogger::LOG_TYPE_ERROR,
+                'Resolve Popup Preview Error',
+                $this->_serializer->serialize(['error' => $e->getMessage()]),
+                0
+            );
+            return null;
+        }
+    }
+
+    public function resolvePopupAudience($customerId, $email, $requestedNewsletterState, array $requestedCustomerGroupIds, array $requestedDynamicSegmentIds, $websiteId)
+    {
+        try {
+            $accountId = $this->_configHelper->getClientId($websiteId);
+            $token = $this->_configHelper->getConfigWithoutCache(ConfigHelper::XML_PATH_FLUX_TOKEN, $websiteId);
+            if (empty($accountId) || empty($token)) {
+                return null;
+            }
+
+            $postfields = http_build_query([
+                'id_account' => $accountId,
+                'token' => $token,
+                'customer_id' => $customerId ? (string) $customerId : '',
+                'email' => $email ? (string) $email : '',
+                'requested_newsletter_state' => $requestedNewsletterState ? (string) $requestedNewsletterState : 'any',
+                'requested_customer_group_ids' => json_encode(array_values($requestedCustomerGroupIds)),
+                'requested_dynamic_segment_ids' => json_encode(array_values($requestedDynamicSegmentIds)),
+            ]);
+
+            $curl = $this->_curlClientFactory->create();
+            $curl->addHeader('Cache-Control', 'no-cache');
+            $curl->addHeader('Content-Type', 'application/x-www-form-urlencoded');
+            $curl->post($this->_endpoint . '/resolvePopupAudience', $postfields);
+
+            $response = json_decode($curl->getBody(), true);
+            if (!is_array($response) || empty($response['success']) || !isset($response['payload']) || !is_array($response['payload'])) {
+                return null;
+            }
+
+            return $response['payload'];
+        } catch (\Exception $e) {
+            $this->_kilibaLogger->addLog(
+                KilibaLogger::LOG_TYPE_ERROR,
+                'Resolve Popup Audience Error',
+                $this->_serializer->serialize(['error' => $e->getMessage()]),
+                $websiteId
+            );
+            return null;
+        }
+    }
+
+    public function resolvePopupGeo($customerId, $email, array $requestedGeographicalSegmentIds, $websiteId, $countryCode = null, $regionCode = null)
+    {
+        try {
+            $accountId = $this->_configHelper->getClientId($websiteId);
+            $token = $this->_configHelper->getConfigWithoutCache(ConfigHelper::XML_PATH_FLUX_TOKEN, $websiteId);
+            if (empty($accountId) || empty($token)) {
+                return null;
+            }
+
+            $postfields = http_build_query([
+                'id_account' => $accountId,
+                'token' => $token,
+                'customer_id' => $customerId ? (string) $customerId : '',
+                'email' => $email ? (string) $email : '',
+                'country_code' => $countryCode ? (string) $countryCode : '',
+                'region_code' => $regionCode ? (string) $regionCode : '',
+                'requested_geographical_segment_ids' => json_encode(array_values($requestedGeographicalSegmentIds)),
+            ]);
+
+            $curl = $this->_curlClientFactory->create();
+            $curl->addHeader('Cache-Control', 'no-cache');
+            $curl->addHeader('Content-Type', 'application/x-www-form-urlencoded');
+            $curl->post($this->_endpoint . '/resolvePopupGeo', $postfields);
+
+            $response = json_decode($curl->getBody(), true);
+            if (!is_array($response) || empty($response['success']) || !isset($response['payload']) || !is_array($response['payload'])) {
+                return null;
+            }
+
+            return $response['payload'];
+        } catch (\Exception $e) {
+            $this->_kilibaLogger->addLog(
+                KilibaLogger::LOG_TYPE_ERROR,
+                'Resolve Popup Geo Error',
+                $this->_serializer->serialize(['error' => $e->getMessage()]),
+                $websiteId
+            );
+            return null;
+        }
+    }
 }

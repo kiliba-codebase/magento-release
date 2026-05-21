@@ -67,6 +67,31 @@ class CustomerHelper extends AbstractHelper
     }
 
     /**
+     * Check if a Magento customer already has at least one order.
+     *
+     * @param int|string|null $customerId
+     * @return bool
+     */
+    public function hasCustomerOrdered($customerId)
+    {
+        $normalizedCustomerId = (int)$customerId;
+        if ($normalizedCustomerId <= 0) {
+            return false;
+        }
+
+        $connection = $this->resourceConnection->getConnection();
+        $orderTable = $this->resourceConnection->getTableName('sales_order');
+
+        $select = $connection->select()
+            ->from($orderTable, ['entity_id'])
+            ->where('customer_id = ?', $normalizedCustomerId)
+            ->limit(1);
+
+        $result = $connection->fetchOne($select);
+        return $result !== false;
+    }
+
+    /**
      * Check if an email already has a customer account
      *
      * @param string $email

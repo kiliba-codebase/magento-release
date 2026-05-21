@@ -154,6 +154,18 @@ class UpgradeSchema implements UpgradeSchemaInterface
                     ]
                 );
             }
+            if (!$installer->getConnection()->tableColumnExists($installer->getTable('kiliba_connector_popup_customers'), 'quiz_answers')) {
+                $installer->getConnection()->addColumn(
+                    $installer->getTable('kiliba_connector_popup_customers'),
+                    'quiz_answers',
+                    [
+                        'type' => \Magento\Framework\DB\Ddl\Table::TYPE_TEXT,
+                        'nullable' => true,
+                        'length' => '2M',
+                        'comment' => 'Popup quiz answers JSON'
+                    ]
+                );
+            }
             if (!$installer->getConnection()->tableColumnExists($installer->getTable('kiliba_connector_popup_customers'), 'optin_sms')) {
                 $installer->getConnection()->addColumn(
                     $installer->getTable('kiliba_connector_popup_customers'),
@@ -163,6 +175,21 @@ class UpgradeSchema implements UpgradeSchemaInterface
                         'nullable' => false,
                         'default' => 0,
                         'comment' => 'SMS opt-in flag'
+                    ]
+                );
+            }
+        }
+
+        if (version_compare($context->getVersion(), '2.8.5', '<') && $installer->tableExists('kiliba_connector_popup_customers')) {
+            if (!$installer->getConnection()->tableColumnExists($installer->getTable('kiliba_connector_popup_customers'), 'quiz_attributes')) {
+                $installer->getConnection()->addColumn(
+                    $installer->getTable('kiliba_connector_popup_customers'),
+                    'quiz_attributes',
+                    [
+                        'type' => \Magento\Framework\DB\Ddl\Table::TYPE_TEXT,
+                        'nullable' => true,
+                        'length' => '2M',
+                        'comment' => 'Popup quiz attributes JSON'
                     ]
                 );
             }

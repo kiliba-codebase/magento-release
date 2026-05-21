@@ -15,11 +15,24 @@
             return null;
         }
 
+        const type = searchParams.get("kiliba_popup_preview_type");
+        const lang = searchParams.get("kiliba_popup_preview_lang");
+        const previewToken = searchParams.get("kiliba_popup_preview_token");
+
+        if (previewToken) {
+            return {
+                type,
+                token: previewToken,
+                lang,
+                debug: true
+            };
+        }
+
         try {
             return {
-                type: searchParams.get("kiliba_popup_preview_type"),
+                type,
                 data: JSON.parse(searchParams.get("kiliba_popup_preview_data")),
-                lang: searchParams.get("kiliba_popup_preview_lang"),
+                lang,
                 debug: true
             };
         } catch (error) {
@@ -65,6 +78,35 @@
     async function loadPopupAssetsIfNeeded() {
         const previewConfig = getPreviewConfig();
         if (previewConfig && previewConfig.type === popupType) {
+            if (previewConfig.token) {
+                try {
+                    const previewUrl = new URL(window.location.origin);
+                    previewUrl.pathname = `/rest/V1/kiliba-connector/popup/${popupTypeKey}/preview`;
+                    previewUrl.searchParams.set("token", previewConfig.token);
+
+                    const response = await fetch(previewUrl, { method: "GET" });
+                    if (!response.ok) {
+                        return;
+                    }
+
+                    const apiResult = await response.json();
+                    if (!apiResult || !apiResult[0] || !apiResult[0].success || !apiResult[0].payload || !apiResult[0].payload.data) {
+                        return;
+                    }
+
+                    injectPopupAssets({
+                        type: apiResult[0].payload.type || popupType,
+                        data: apiResult[0].payload.data,
+                        lang: apiResult[0].payload.lang || previewConfig.lang,
+                        debug: true
+                    });
+                    return;
+                } catch (error) {
+                    console.error("Unable to resolve Kiliba popup preview", error);
+                    return;
+                }
+            }
+
             injectPopupAssets(previewConfig);
             return;
         }
