@@ -1,6 +1,9 @@
 # Changelog
 All notable changes to this project will be documented in this file.
 
+## [2.8.7] - 21/05/2026
+- Bump `@kiliba-codebase/cms-popup` to `1.0.35` to restore the historical legacy popup rendering after module updates.
+
 ## [2.8.6] - 20/05/2026
 - Resolve popup preview payloads through a short-lived Kiliba token instead of a long query string, avoiding `URI Too Long` failures on large V2 previews.
 
