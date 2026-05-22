@@ -1,6 +1,9 @@
 # Changelog
 All notable changes to this project will be documented in this file.
 
+## [2.8.9] - 22/05/2026
+- Bump `@kiliba-codebase/cms-popup` to `1.0.39` to restore visible popup consent controls on themes that hide native checkbox and radio inputs.
+
 ## [2.8.8] - 21/05/2026
 - Bump `@kiliba-codebase/cms-popup` to `1.0.36` to fix the remaining popup visual regressions on legacy and centered V2 image-top layouts.
 
