@@ -96,14 +96,20 @@ class OrderFormatter
             $actualAmount = (float)$order->getBaseSubtotal();
             $actualAmountWithTax = (float)$order->getBaseGrandTotal();
 
-            // Format dates (PHP 5.2+ compatible ISO 8601 format)
-            $createdAt = gmdate('Y-m-d\TH:i:s\Z', strtotime($order->getCreatedAt()));
-            $updatedAt = gmdate('Y-m-d\TH:i:s\Z', strtotime($order->getUpdatedAt()));
+            // Some early order save events can expose incomplete dates.
+            $createdAt = $this->formatIsoDate($order->getCreatedAt());
+            $updatedAt = $this->formatIsoDate($order->getUpdatedAt());
+
+            // Skip early save events until Magento exposes a real order status/state.
+            $status = $this->resolveOrderStatus($order);
+            if ($status === null) {
+                return null;
+            }
 
             $data = [
                 'id' => (string)$order->getId(),
                 'reference' => $order->getIncrementId(),
-                'status' => $order->getStatus(),
+                'status' => $status,
                 'cartId' => $order->getQuoteId() ? (string)$order->getQuoteId() : null,
                 'shopId' => (string)$storeId,
                 'amount' => $actualAmount,
@@ -245,5 +251,46 @@ class OrderFormatter
             'zipcode' => $address->getPostcode() ?: null,
             'region' => $address->getRegion() ?: null
         ];
+    }
+
+    /**
+     * Resolve a non-empty order status string for webhook validation.
+     *
+     * @param \Magento\Sales\Model\Order $order
+     * @return string|null
+     */
+    protected function resolveOrderStatus($order)
+    {
+        $status = $order->getStatus();
+        if (!empty($status)) {
+            return (string)$status;
+        }
+
+        $state = $order->getState();
+        if (!empty($state)) {
+            return (string)$state;
+        }
+
+        return null;
+    }
+
+    /**
+     * Format a Magento datetime string to ISO 8601 and fallback to now when missing.
+     *
+     * @param string|null $dateValue
+     * @return string
+     */
+    protected function formatIsoDate($dateValue)
+    {
+        if (empty($dateValue)) {
+            return gmdate('Y-m-d\TH:i:s\Z');
+        }
+
+        $timestamp = strtotime($dateValue);
+        if ($timestamp === false) {
+            return gmdate('Y-m-d\TH:i:s\Z');
+        }
+
+        return gmdate('Y-m-d\TH:i:s\Z', $timestamp);
     }
 }

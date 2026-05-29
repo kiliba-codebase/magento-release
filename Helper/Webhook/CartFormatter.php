@@ -123,9 +123,9 @@ class CartFormatter
             $locale = $this->configHelper->getStoreLocale($storeId);
             $langIsoCode = $this->extractLangFromLocale($locale);
 
-            // Format dates (PHP 5.2+ compatible ISO 8601 format)
-            $createdAt = gmdate('Y-m-d\TH:i:s\Z', strtotime($quote->getCreatedAt()));
-            $updatedAt = gmdate('Y-m-d\TH:i:s\Z'); // $quote->getUpdatedAt() is null
+            // Some quotes have null dates during intermediate checkout saves.
+            $createdAt = $this->formatIsoDate($quote->getCreatedAt());
+            $updatedAt = $this->formatIsoDate($quote->getUpdatedAt());
 
             $data = [
                 'id' => (string)$quote->getId(),
@@ -368,5 +368,25 @@ class CartFormatter
         
         $parts = explode('_', $locale);
         return strtolower($parts[0]);
+    }
+
+    /**
+     * Format a Magento datetime string to ISO 8601 and fallback to now when missing.
+     *
+     * @param string|null $dateValue
+     * @return string
+     */
+    protected function formatIsoDate($dateValue)
+    {
+        if (empty($dateValue)) {
+            return gmdate('Y-m-d\TH:i:s\Z');
+        }
+
+        $timestamp = strtotime($dateValue);
+        if ($timestamp === false) {
+            return gmdate('Y-m-d\TH:i:s\Z');
+        }
+
+        return gmdate('Y-m-d\TH:i:s\Z', $timestamp);
     }
 }
