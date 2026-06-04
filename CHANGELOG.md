@@ -1,6 +1,10 @@
 # Changelog
 All notable changes to this project will be documented in this file.
 
+## [2.8.12] - 04/06/2026
+- Bump `@kiliba-codebase/cms-popup` to `1.0.41`.
+- Add popup locale support for `nl`, `pt`, `nb` and `sv` in storefront popups.
+
 ## [2.8.11] - 29/05/2026
 - Guard cart webhook date formatting against missing quote timestamps to avoid PHP 8.2 `strtotime(null)` failures during checkout saves.
 - Guard order webhook date formatting against missing order timestamps to avoid PHP 8.2 `strtotime(null)` failures during early save events.
