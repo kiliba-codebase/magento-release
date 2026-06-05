@@ -1,6 +1,10 @@
 # Changelog
 All notable changes to this project will be documented in this file.
 
+## [2.8.13] - 05/06/2026
+- Bump `@kiliba-codebase/cms-popup` to `1.0.44`.
+- Add popup V2 info mode, reopen launcher, and per-field typography controls (`fontSize`, `lineHeight`) in storefront popups.
+
 ## [2.8.12] - 04/06/2026
 - Bump `@kiliba-codebase/cms-popup` to `1.0.41`.
 - Add popup locale support for `nl`, `pt`, `nb` and `sv` in storefront popups.
