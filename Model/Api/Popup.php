@@ -348,6 +348,7 @@ class Popup extends AbstractApiAction implements PopupInterface
             // Get subscription status
             $hasSubscribed = $this->_request->getParam('subscribe') === 'true';
             $phone = trim((string)$this->_request->getParam('phone'));
+            $rawBirthday = trim((string)$this->_request->getParam('birthday'));
             $optinSms = $this->_request->getParam('optin_sms') === 'true';
 
             // Check lang (store locale)
@@ -445,6 +446,16 @@ class Popup extends AbstractApiAction implements PopupInterface
                 return $this->jsonResponse(400, "SMS_OPTIN_REQUIRED");
             }
 
+            $birthday = null;
+            if ($rawBirthday !== '' && !empty($popupEffectiveConfiguration['allowBirthday'])) {
+                $birthday = $this->normalizeBirthday($rawBirthday);
+                if ($birthday === null) {
+                    $this->logRegistrationFailure($email, "Invalid birthday");
+                    sleep(2);
+                    return $this->jsonResponse(400, "INVALID_BIRTHDAY");
+                }
+            }
+
             // Check CAPTCHA
             if (isset($popupEffectiveConfiguration['captcha']) 
                 && isset($popupEffectiveConfiguration['captcha']['type']) 
@@ -508,6 +519,7 @@ class Popup extends AbstractApiAction implements PopupInterface
             $popupCustomer->setData('campaign_id', $campaignId);
             $popupCustomer->setEmail($email);
             $popupCustomer->setData('phone', $phone);
+            $popupCustomer->setData('birthday', $birthday);
             $quizAnswers = json_decode((string)$this->_request->getParam('quizAnswers'), true);
             $popupCustomer->setData('quiz_answers', is_array($quizAnswers) && count($quizAnswers) > 0 ? json_encode($quizAnswers) : null);
             $quizAttributes = $this->buildPopupQuizAttributes($campaignId, is_array($quizAnswers) ? $quizAnswers : [], $popupEffectiveConfiguration);
@@ -529,7 +541,7 @@ class Popup extends AbstractApiAction implements PopupInterface
             // Ping Kiliba
             $this->kilibaCaller->registerPopupSubscription(
                 $popupIdentifier,
-                ['email' => $email, 'subscribe' => $hasSubscribed, 'phone' => $phone, 'optin_sms' => $optinSms, 'campaign_id' => $campaignId, 'quiz_answers' => is_array($quizAnswers) ? $quizAnswers : []],
+                ['email' => $email, 'subscribe' => $hasSubscribed, 'phone' => $phone, 'birthday' => $birthday, 'optin_sms' => $optinSms, 'campaign_id' => $campaignId, 'quiz_answers' => is_array($quizAnswers) ? $quizAnswers : []],
                 $storeId,
                 $websiteId
             );
@@ -712,6 +724,10 @@ class Popup extends AbstractApiAction implements PopupInterface
             return null;
         }
 
+        $campaignForm = isset($selectedCampaign["form"]) && is_array($selectedCampaign["form"])
+            ? $selectedCampaign["form"]
+            : [];
+
         $customerState = isset($selectedCampaign["audienceRules"]["customerState"]) ? $selectedCampaign["audienceRules"]["customerState"] : "new-customer";
         if ($customerState === "any" || (isset($selectedCampaign["audienceRules"]["identifiedState"]) && $selectedCampaign["audienceRules"]["identifiedState"] === "any")) {
             $eligibilityMode = "all";
@@ -724,11 +740,14 @@ class Popup extends AbstractApiAction implements PopupInterface
         return [
             "campaignId" => isset($selectedCampaign["id"]) ? (string) $selectedCampaign["id"] : "",
             "eligibilityMode" => $eligibilityMode,
-            "subscriptionCheckboxRequired" => !empty($selectedCampaign["form"]["subscriptionCheckboxRequired"]),
+            "allowBirthday" => !empty($campaignForm["allowBirthday"]),
+            "subscriptionCheckboxRequired" => !empty($campaignForm["subscriptionCheckboxRequired"]),
             "captcha" => isset($selectedCampaign["captcha"]) ? $selectedCampaign["captcha"] : null,
-            "allowSubscription" => !empty($selectedCampaign["form"]["allowSubscription"]),
-            "allowSmsOptin" => !empty($selectedCampaign["form"]["allowSmsOptin"]),
-            "smsOptinRequiredWhenPhoneProvided" => !empty($selectedCampaign["form"]["smsOptinRequiredWhenPhoneProvided"]),
+            "allowSubscription" => !empty($campaignForm["allowSubscription"]),
+            "allowSmsOptin" => !empty($campaignForm["allowSmsOptin"]),
+            "sendEmailAfterSubmit" => !array_key_exists("sendEmailAfterSubmit", $campaignForm)
+                || !empty($campaignForm["sendEmailAfterSubmit"]),
+            "smsOptinRequiredWhenPhoneProvided" => !empty($campaignForm["smsOptinRequiredWhenPhoneProvided"]),
             "newsletterState" => isset($selectedCampaign["audienceRules"]["newsletterState"]) ? $selectedCampaign["audienceRules"]["newsletterState"] : "any",
             "excludedNewsletterState" => isset($selectedCampaign["audienceRules"]["excludedNewsletterState"]) ? $selectedCampaign["audienceRules"]["excludedNewsletterState"] : null,
             "customerGroupIds" => isset($selectedCampaign["audienceRules"]["customerGroupIds"]) && is_array($selectedCampaign["audienceRules"]["customerGroupIds"]) ? $selectedCampaign["audienceRules"]["customerGroupIds"] : [],
@@ -736,8 +755,47 @@ class Popup extends AbstractApiAction implements PopupInterface
             "dynamicSegmentIds" => isset($selectedCampaign["audienceRules"]["dynamicSegmentIds"]) && is_array($selectedCampaign["audienceRules"]["dynamicSegmentIds"]) ? $selectedCampaign["audienceRules"]["dynamicSegmentIds"] : [],
             "excludedDynamicSegmentIds" => isset($selectedCampaign["audienceRules"]["excludedDynamicSegmentIds"]) && is_array($selectedCampaign["audienceRules"]["excludedDynamicSegmentIds"]) ? $selectedCampaign["audienceRules"]["excludedDynamicSegmentIds"] : [],
             "geoRules" => isset($selectedCampaign["geoRules"]) && is_array($selectedCampaign["geoRules"]) ? $selectedCampaign["geoRules"] : [],
-            "quizQuestions" => isset($selectedCampaign["form"]["quizQuestions"]) && is_array($selectedCampaign["form"]["quizQuestions"]) ? $selectedCampaign["form"]["quizQuestions"] : [],
+            "quizQuestions" => isset($campaignForm["quizQuestions"]) && is_array($campaignForm["quizQuestions"]) ? $campaignForm["quizQuestions"] : [],
         ];
+    }
+
+    /**
+     * Normalize popup birthday values before local persistence and Kiliba forwarding.
+     */
+    private function normalizeBirthday($rawBirthday)
+    {
+        $normalizedBirthday = trim((string)$rawBirthday);
+        if ($normalizedBirthday === '') {
+            return null;
+        }
+
+        $supportedFormats = ['Y-m-d', 'd/m/Y', 'm/d/Y'];
+        foreach ($supportedFormats as $format) {
+            $date = \DateTime::createFromFormat('!' . $format, $normalizedBirthday);
+            $errors = \DateTime::getLastErrors();
+            if (
+                $date instanceof \DateTime
+                && (
+                    $errors === false
+                    || (
+                        is_array($errors)
+                        && $errors['warning_count'] === 0
+                        && $errors['error_count'] === 0
+                    )
+                )
+            ) {
+                return $date->format('Y-m-d');
+            }
+        }
+
+        $timestamp = strtotime($normalizedBirthday);
+        if ($timestamp === false) {
+            return null;
+        }
+
+        $date = new \DateTime('@' . $timestamp);
+        $date->setTimezone(new \DateTimeZone('UTC'));
+        return $date->format('Y-m-d');
     }
 
     private function slugifyPopupQuizSegmentKey($value)

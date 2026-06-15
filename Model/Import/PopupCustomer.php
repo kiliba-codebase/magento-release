@@ -134,6 +134,7 @@ class PopupCustomer extends AbstractModel
                 'campaign_id' => (string)$popupCustomer->getData('campaign_id'),
                 'email' => $popupCustomer->getEmail(),
                 'phone' => (string)$popupCustomer->getData('phone'),
+                'birthday' => (string)$popupCustomer->getData('birthday'),
                 'quiz_answers' => (string)$popupCustomer->getData('quiz_answers'),
                 'quiz_attributes' => (string)$popupCustomer->getData('quiz_attributes'),
                 'subscribe' => (int)$popupCustomer->getSubscribe(),

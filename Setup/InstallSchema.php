@@ -248,6 +248,13 @@ class InstallSchema implements \Magento\Framework\Setup\InstallSchemaInterface {
                         'Customer phone'
                     )
                     ->addColumn(
+                        'birthday',
+                        \Magento\Framework\DB\Ddl\Table::TYPE_DATE,
+                        null,
+                        ['nullable' => true],
+                        'Customer birthday'
+                    )
+                    ->addColumn(
                         'quiz_answers',
                         \Magento\Framework\DB\Ddl\Table::TYPE_TEXT,
                         '2M',

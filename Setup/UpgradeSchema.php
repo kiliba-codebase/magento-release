@@ -86,6 +86,13 @@ class UpgradeSchema implements UpgradeSchemaInterface
                         'Customer phone'
                     )
                     ->addColumn(
+                        'birthday',
+                        \Magento\Framework\DB\Ddl\Table::TYPE_DATE,
+                        null,
+                        ['nullable' => true],
+                        'Customer birthday'
+                    )
+                    ->addColumn(
                         'subscribe',
                         \Magento\Framework\DB\Ddl\Table::TYPE_SMALLINT,
                         1,
@@ -190,6 +197,20 @@ class UpgradeSchema implements UpgradeSchemaInterface
                         'nullable' => true,
                         'length' => '2M',
                         'comment' => 'Popup quiz attributes JSON'
+                    ]
+                );
+            }
+        }
+
+        if (version_compare($context->getVersion(), '2.8.14', '<') && $installer->tableExists('kiliba_connector_popup_customers')) {
+            if (!$installer->getConnection()->tableColumnExists($installer->getTable('kiliba_connector_popup_customers'), 'birthday')) {
+                $installer->getConnection()->addColumn(
+                    $installer->getTable('kiliba_connector_popup_customers'),
+                    'birthday',
+                    [
+                        'type' => \Magento\Framework\DB\Ddl\Table::TYPE_DATE,
+                        'nullable' => true,
+                        'comment' => 'Customer birthday'
                     ]
                 );
             }

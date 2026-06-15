@@ -51,6 +51,7 @@
             "campaign_id": true,
             "email": true,
             "phone": true,
+            "birthday": true,
             "quiz_answers": true,
             "quiz_attributes": true,
             "subscribe": true,
