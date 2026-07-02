@@ -299,11 +299,18 @@ class Popup extends AbstractApiAction implements PopupInterface
     /**
      * {@inheritdoc}
      */
-    public function registerSubscription($popupType)
-    {
+    public function registerSubscription(
+        $popupType,
+        $email = null,
+        $subscribe = false,
+        $phone = null,
+        $birthday = null,
+        $optin_sms = false,
+        $captcha = null,
+        $campaignId = null,
+        $quizAnswers = null
+    ) {
         try {
-            // Get email from request
-            $email = $this->_request->getParam('email');
             if (!$email) {
                 $this->logRegistrationFailure($email, "Missing email");
                 sleep(2);
@@ -346,10 +353,10 @@ class Popup extends AbstractApiAction implements PopupInterface
             }
 
             // Get subscription status
-            $hasSubscribed = $this->_request->getParam('subscribe') === 'true';
-            $phone = trim((string)$this->_request->getParam('phone'));
-            $rawBirthday = trim((string)$this->_request->getParam('birthday'));
-            $optinSms = $this->_request->getParam('optin_sms') === 'true';
+            $hasSubscribed = $subscribe === true || $subscribe === 'true';
+            $phone = trim((string)$phone);
+            $rawBirthday = trim((string)$birthday);
+            $optinSms = $optin_sms === true || $optin_sms === 'true';
 
             // Check lang (store locale)
             $idLang = $this->_configHelper->getStoreLocale($storeId);
@@ -365,7 +372,7 @@ class Popup extends AbstractApiAction implements PopupInterface
                 $websiteId
             );
             $popupConfiguration = json_decode($popupConfigJson, true);
-            $campaignId = (string)($this->_request->getParam('campaignId') ?: '');
+            $campaignId = (string)($campaignId ?: '');
             $popupEffectiveConfiguration = $this->getCampaignSubmissionConfiguration($popupConfiguration, $campaignId);
             if (!$popupEffectiveConfiguration) {
                 $this->logRegistrationFailure($email, "Popup campaign unavailable");
@@ -466,8 +473,7 @@ class Popup extends AbstractApiAction implements PopupInterface
                     sleep(2);
                     return $this->jsonResponse(400, "INVALID_CAPTCHA_SETUP");
                 }
-                $token = $this->_request->getParam('captcha');
-                $captchaVerification = $this->verifyCaptcha($popupEffectiveConfiguration['captcha']['secretkey'], $token);
+                $captchaVerification = $this->verifyCaptcha($popupEffectiveConfiguration['captcha']['secretkey'], $captcha);
                 if (!$captchaVerification || !$captchaVerification->success) {
                     $this->logRegistrationFailure($email, "Invalid captcha token");
                     sleep(2);
@@ -520,7 +526,7 @@ class Popup extends AbstractApiAction implements PopupInterface
             $popupCustomer->setEmail($email);
             $popupCustomer->setData('phone', $phone);
             $popupCustomer->setData('birthday', $birthday);
-            $quizAnswers = json_decode((string)$this->_request->getParam('quizAnswers'), true);
+            $quizAnswers = json_decode((string)$quizAnswers, true);
             $popupCustomer->setData('quiz_answers', is_array($quizAnswers) && count($quizAnswers) > 0 ? json_encode($quizAnswers) : null);
             $quizAttributes = $this->buildPopupQuizAttributes($campaignId, is_array($quizAnswers) ? $quizAnswers : [], $popupEffectiveConfiguration);
             $popupCustomer->setData('quiz_attributes', is_array($quizAttributes) && count($quizAttributes) > 0 ? json_encode($quizAttributes) : null);
@@ -563,7 +569,7 @@ class Popup extends AbstractApiAction implements PopupInterface
     /**
      * {@inheritdoc}
      */
-    public function registerDisplay($popupType)
+    public function registerDisplay($popupType, $displayData = null)
     {
         try {
             if ($popupType === "promoCodeFirstPurchase") {
@@ -576,7 +582,6 @@ class Popup extends AbstractApiAction implements PopupInterface
             $storeId = $store->getId();
             $websiteId = $store->getWebsiteId();
 
-            $displayData = $this->_request->getParam('displayData');
             if (is_string($displayData)) {
                 $displayData = json_decode($displayData, true);
             }
