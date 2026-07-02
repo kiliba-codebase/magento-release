@@ -182,15 +182,22 @@ class KilibaCaller extends \Magento\Framework\App\Helper\AbstractHelper
             }
 
             $storeLocale = $this->_configHelper->getStoreLocale($store->getId());
+            $moduleVersion = $this->getModuleVersion();
+            $postFields = [
+                'id_account' => $accountId,
+                'url_shop' => $storeUrl,
+                'url_logo' => $logoUrl,
+                'token' => $magentoApiToken,
+                'locale' => $storeLocale,
+            ];
+            if (!empty($moduleVersion)) {
+                $postFields['version'] = $moduleVersion;
+            }
 
             $curl = $this->_buildCurlQuery();
             $curl->setOption(
                 CURLOPT_POSTFIELDS,
-                'id_account=' . $accountId
-                . '&url_shop=' . $storeUrl
-                . '&url_logo=' . $logoUrl
-                . '&token=' . $magentoApiToken
-                . '&locale=' . $storeLocale
+                http_build_query($postFields)
             );
             $curl->setOption(CURLOPT_URL, $this->_endpoint . self::METHOD_CHECK_FROM);
 
@@ -206,6 +213,32 @@ class KilibaCaller extends \Magento\Framework\App\Helper\AbstractHelper
             return $this->_assetRepository->getUrlWithParams($fileId, []);
         } catch (\Exception $e) {
             return "";
+        }
+    }
+
+    /**
+     * Read the installed module version from composer metadata so Kiliba can
+     * refresh `plug_version` immediately during the account-link step.
+     *
+     * @return string
+     */
+    protected function getModuleVersion()
+    {
+        try {
+            $composerJsonPath = dirname(__DIR__) . DIRECTORY_SEPARATOR . 'composer.json';
+            if (!is_readable($composerJsonPath)) {
+                return '';
+            }
+
+            $composerJsonData = file_get_contents($composerJsonPath);
+            if ($composerJsonData === false || $composerJsonData === '') {
+                return '';
+            }
+
+            $composerConfig = $this->_serializer->unserialize($composerJsonData);
+            return !empty($composerConfig['version']) ? (string)$composerConfig['version'] : '';
+        } catch (\Exception $e) {
+            return '';
         }
     }
 

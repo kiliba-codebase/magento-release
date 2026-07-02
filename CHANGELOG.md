@@ -1,6 +1,9 @@
 # Changelog
 All notable changes to this project will be documented in this file.
 
+## [2.8.17] - 02/07/2026
+- Send the Magento module version during `checkformmagento` so Kiliba updates `plug_version` immediately when linking the shop, without waiting for the Airflow debug refresh.
+
 ## [2.8.16] - 02/07/2026
 - Fix declarative schema validation for popup customer JSON columns by using `mediumtext` types accepted by Magento.
 
