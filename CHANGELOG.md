@@ -1,6 +1,9 @@
 # Changelog
 All notable changes to this project will be documented in this file.
 
+## [2.8.16] - 02/07/2026
+- Fix declarative schema validation for popup customer JSON columns by using `mediumtext` types accepted by Magento.
+
 ## [2.8.15] - 18/06/2026
 - Bump `@kiliba-codebase/cms-popup` to `1.0.46`.
 - Restore popup info mode default wordings on storefront popups after the shared popup runtime release.
