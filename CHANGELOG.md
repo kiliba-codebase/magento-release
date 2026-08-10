@@ -1,6 +1,9 @@
 # Changelog
 All notable changes to this project will be documented in this file.
 
+## [2.8.18] - 10/08/2026
+- Keep anonymous visitors eligible for popup campaigns that only exclude known newsletter subscribers or audience members.
+
 ## [2.8.17] - 02/07/2026
 - Send the Magento module version during `checkformmagento` so Kiliba updates `plug_version` immediately when linking the shop, without waiting for the Airflow debug refresh.
 

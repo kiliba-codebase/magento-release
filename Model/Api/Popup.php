@@ -1069,6 +1069,21 @@ class Popup extends AbstractApiAction implements PopupInterface
     }
 
     /**
+     * Build the known audience state for a visitor without a trusted identifier.
+     *
+     * Exclusion-only rules still need a concrete empty audience to be evaluated.
+     * Keeping the audience null would incorrectly reject every anonymous visitor.
+     */
+    private function getAnonymousPopupAudience()
+    {
+        return [
+            "newsletterStatus" => "unknown",
+            "customerGroupIds" => [],
+            "dynamicSegmentIds" => [],
+        ];
+    }
+
+    /**
      * Avoid backend geo resolution when no trusted identifier is available.
      */
     private function shouldResolvePopupGeo($customerId, $email)
@@ -1209,7 +1224,7 @@ class Popup extends AbstractApiAction implements PopupInterface
         $fallbackCountryCode = $this->getPopupGeoFallbackCountryCode();
         $fallbackRegionCode = $this->getPopupGeoFallbackRegionCode();
 
-        $audience = null;
+        $audience = $this->getAnonymousPopupAudience();
         if ($this->shouldResolvePopupAudience($customerId, $customerEmail)) {
             $audience = $this->kilibaCaller->resolvePopupAudience(
                 $customerId ? (string) $customerId : "",
