@@ -200,6 +200,25 @@ class ConfigHelper extends \Magento\Framework\App\Helper\AbstractHelper
     }
 
     /**
+     * Return the website-scoped flux token, falling back to the legacy
+     * default-scope token when the website does not have its own value.
+     *
+     * @param int|null $websiteId
+     * @return false|string
+     */
+    public function getFluxToken($websiteId = null)
+    {
+        if ($websiteId !== null) {
+            $websiteToken = $this->getConfigWithoutCache(self::XML_PATH_FLUX_TOKEN, $websiteId);
+            if (!empty($websiteToken)) {
+                return $websiteToken;
+            }
+        }
+
+        return $this->getConfigWithoutCache(self::XML_PATH_FLUX_TOKEN);
+    }
+
+    /**
      * @param string $path
      * @param string $value
      * @param int|null $websiteId

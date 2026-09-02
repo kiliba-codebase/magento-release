@@ -76,13 +76,9 @@ class WebhookSender extends AbstractHelper
                 return false;
             }
 
-            // Get flux token for authentication
-            // Keep webhook auth aligned with module APIs: prefer website token but fallback
-            // to the legacy default-scope token when the website-specific value is not set.
-            $fluxToken = $this->configHelper->getConfigWithoutCache(ConfigHelper::XML_PATH_FLUX_TOKEN, $websiteId);
-            if (empty($fluxToken)) {
-                $fluxToken = $this->configHelper->getConfigWithoutCache(ConfigHelper::XML_PATH_FLUX_TOKEN);
-            }
+            // Get flux token for authentication. Legacy installations can still
+            // store a single token at the default scope.
+            $fluxToken = $this->configHelper->getFluxToken($websiteId);
             if (empty($fluxToken)) {
                 $this->kilibaLogger->addLog(
                     KilibaLogger::LOG_TYPE_WARNING,

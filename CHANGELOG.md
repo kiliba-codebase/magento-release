@@ -1,6 +1,12 @@
 # Changelog
 All notable changes to this project will be documented in this file.
 
+## [2.8.20] - 25/08/2026
+- Send popup display data through Magento request parameters so storefront views reach Kiliba statistics collection.
+
+## [2.8.19] - 24/08/2026
+- Fallback popup API authentication to the legacy default-scope token when no website-scoped token is configured.
+
 ## [2.8.18] - 10/08/2026
 - Keep anonymous visitors eligible for popup campaigns that only exclude known newsletter subscribers or audience members.
 

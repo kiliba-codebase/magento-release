@@ -382,7 +382,7 @@ class KilibaCaller extends \Magento\Framework\App\Helper\AbstractHelper
     {
         try {
             $accountId = $this->_configHelper->getClientId($websiteId);
-            $token = $this->_configHelper->getConfigWithoutCache(ConfigHelper::XML_PATH_FLUX_TOKEN, $websiteId);
+            $token = $this->_configHelper->getFluxToken($websiteId);
 
             $postfields = http_build_query([
                 'id_account' => $accountId,
@@ -421,7 +421,7 @@ class KilibaCaller extends \Magento\Framework\App\Helper\AbstractHelper
     {
         try {
             $accountId = $this->_configHelper->getClientId($websiteId);
-            $token = $this->_configHelper->getConfigWithoutCache(ConfigHelper::XML_PATH_FLUX_TOKEN, $websiteId);
+            $token = $this->_configHelper->getFluxToken($websiteId);
 
             $postfields = http_build_query([
                 'id_account' => $accountId,
@@ -480,7 +480,7 @@ class KilibaCaller extends \Magento\Framework\App\Helper\AbstractHelper
     {
         try {
             $accountId = $this->_configHelper->getClientId($websiteId);
-            $token = $this->_configHelper->getConfigWithoutCache(ConfigHelper::XML_PATH_FLUX_TOKEN, $websiteId);
+            $token = $this->_configHelper->getFluxToken($websiteId);
             if (empty($accountId) || empty($token)) {
                 return null;
             }
@@ -521,7 +521,7 @@ class KilibaCaller extends \Magento\Framework\App\Helper\AbstractHelper
     {
         try {
             $accountId = $this->_configHelper->getClientId($websiteId);
-            $token = $this->_configHelper->getConfigWithoutCache(ConfigHelper::XML_PATH_FLUX_TOKEN, $websiteId);
+            $token = $this->_configHelper->getFluxToken($websiteId);
             if (empty($accountId) || empty($token)) {
                 return null;
             }

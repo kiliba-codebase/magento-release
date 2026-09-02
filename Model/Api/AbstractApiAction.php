@@ -158,16 +158,9 @@ class AbstractApiAction
             );
         }
 
-        $websiteToken = $this->_configHelper->getConfigWithoutCache(ConfigHelper::XML_PATH_FLUX_TOKEN, $websiteId);
-        $legacyToken = $this->_configHelper->getConfigWithoutCache(ConfigHelper::XML_PATH_FLUX_TOKEN);
+        $expectedToken = $this->_configHelper->getFluxToken($websiteId);
 
-        if(
-            empty($websiteToken)
-                // Legacy (check global scope token)
-                ? $token !== $legacyToken
-                // 2.2.6 (check website scoped token)
-                : $token !== $websiteToken
-        ) {
+        if ($token !== $expectedToken) {
             return array(
                 "success" => false,
                 "code" => self::ERROR_CODE_WRONG_TOKEN
