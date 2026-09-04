@@ -1,6 +1,9 @@
 # Changelog
 All notable changes to this project will be documented in this file.
 
+## [2.8.21] - 04/09/2026
+- Support nullable monetary fields when exporting historical Magento orders on PHP 8.1 and later.
+
 ## [2.8.20] - 25/08/2026
 - Send popup display data through Magento request parameters so storefront views reach Kiliba statistics collection.
 

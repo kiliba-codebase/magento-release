@@ -155,12 +155,13 @@ class AbstractModel
     }
 
     /**
-     * @param string|int|float $price
+     * @param string|int|float|null $price
      * @return string
      */
     protected function _formatPrice($price)
     {
-        return (string) number_format($price, 4, ".", "");
+        // Historical Magento orders may contain nullable monetary fields.
+        return (string) number_format((float) $price, 4, ".", "");
     }
 
     /**
