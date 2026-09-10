@@ -5,6 +5,7 @@
     $popupTypeKey = "promoCodeFirstPurchase";
     $popupJsUrl = $block->getViewFileUrl("Kiliba_Connector::js/popup.min.js");
     $popupCssUrl = $block->getViewFileUrl("Kiliba_Connector::css/popup.min.css");
+    $defaultPopupImageUrl = $block->getViewFileUrl("Kiliba_Connector::img/blake-wisz-Xn5FbEM9564-unsplash-small.png");
 ?>
 
 <div
@@ -15,5 +16,6 @@
     data-popup-type-key="<?= $block->escapeHtmlAttr($popupTypeKey) ?>"
     data-popup-js-url="<?= $block->escapeHtmlAttr($popupJsUrl) ?>"
     data-popup-css-url="<?= $block->escapeHtmlAttr($popupCssUrl) ?>"
+    data-default-image-url="<?= $block->escapeHtmlAttr($defaultPopupImageUrl) ?>"
     hidden
 ></div>

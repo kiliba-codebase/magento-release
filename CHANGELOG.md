@@ -1,6 +1,10 @@
 # Changelog
 All notable changes to this project will be documented in this file.
 
+## [2.8.22] - 10/09/2026
+- Bump `@kiliba-codebase/cms-popup` to `1.0.50` so the fallback image is no longer embedded in `popup.min.js`.
+- Load the historical fallback image as a separate Magento static asset only when a popup has no configured image.
+
 ## [2.8.21] - 04/09/2026
 - Support nullable monetary fields when exporting historical Magento orders on PHP 8.1 and later.
 
