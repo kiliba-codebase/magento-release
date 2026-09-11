@@ -26,6 +26,43 @@ class ProductTest extends TestCase
     }
 
     /**
+     * @dataProvider productImageUrlProvider
+     */
+    public function testBuildProductImageUrl($mediaUrl, $image, $expectedUrl)
+    {
+        $reflection = new \ReflectionClass(\Kiliba\Connector\Model\Import\Product::class);
+        $productFormatter = $reflection->newInstanceWithoutConstructor();
+        $buildProductImageUrl = $reflection->getMethod("_buildProductImageUrl");
+        $buildProductImageUrl->setAccessible(true);
+
+        $this->assertSame(
+            $expectedUrl,
+            $buildProductImageUrl->invoke($productFormatter, $mediaUrl, $image)
+        );
+    }
+
+    public function productImageUrlProvider()
+    {
+        return [
+            "Magento path with leading slash" => [
+                "https://shop.example/media/",
+                "/5/_/product.jpg",
+                "https://shop.example/media/catalog/product/5/_/product.jpg",
+            ],
+            "Magento path without leading slash" => [
+                "https://shop.example/media/",
+                "5/_/product.jpg",
+                "https://shop.example/media/catalog/product/5/_/product.jpg",
+            ],
+            "media URL without trailing slash" => [
+                "https://shop.example/media",
+                "/5/_/product.jpg",
+                "https://shop.example/media/catalog/product/5/_/product.jpg",
+            ],
+        ];
+    }
+
+    /**
      * The test itself, every test function must start with 'test'
      */
     public function testFormatProductData()

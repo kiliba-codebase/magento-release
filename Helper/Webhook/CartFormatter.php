@@ -319,13 +319,25 @@ class CartFormatter
 
             $image = $product->getThumbnail();
             if ($image && $image !== 'no_selection') {
-                return $this->mediaUrlCache[$storeId] . 'catalog/product' . $image;
+                return $this->buildProductImageUrl($this->mediaUrlCache[$storeId], $image);
             }
 
             return null;
         } catch (\Exception $e) {
             return null;
         }
+    }
+
+    /**
+     * Build a product image URL independently of the slash format returned by Magento.
+     *
+     * @param string $mediaUrl
+     * @param string $image
+     * @return string
+     */
+    protected function buildProductImageUrl($mediaUrl, $image)
+    {
+        return rtrim($mediaUrl, '/') . '/catalog/product/' . ltrim($image, '/');
     }
 
     /**

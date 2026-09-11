@@ -316,7 +316,7 @@ class Product extends AbstractModel
             }
 
             if ($image && $image != "no_selection") {
-                $imageUrl = $this->_mediaUrl[$websiteId] . "catalog/product" . $image;
+                $imageUrl = $this->_buildProductImageUrl($this->_mediaUrl[$websiteId], $image);
             }
 
             $salableQuantity = [];
@@ -428,6 +428,18 @@ class Product extends AbstractModel
             );
             return ["error" => $e->getMessage()];
         }
+    }
+
+    /**
+     * Build a product image URL independently of the slash format returned by Magento.
+     *
+     * @param string $mediaUrl
+     * @param string $image
+     * @return string
+     */
+    protected function _buildProductImageUrl($mediaUrl, $image)
+    {
+        return rtrim($mediaUrl, "/") . "/catalog/product/" . ltrim($image, "/");
     }
 
     /**
