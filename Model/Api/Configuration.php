@@ -139,6 +139,7 @@ class Configuration extends AbstractApiAction implements ConfigurationInterface
         $configValue["isSingleStore"] = $this->_configHelper->isSingleStore();
         $configValue["linkedWebsite"] = $linkedWebsite;
         $configValue["accountId"] = $accountId;
+        $configValue["customerPixelTrackingFields"] = $this->_configHelper->getCustomerPixelTrackingFields($websiteId);
 
         return array($configValue);
     }

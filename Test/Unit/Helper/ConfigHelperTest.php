@@ -40,6 +40,22 @@ class ConfigHelperTest extends TestCase
         $this->assertSame('legacy-token', $helper->getFluxToken());
         $this->assertSame([null], $helper->getRequestedScopes());
     }
+
+    public function testCustomerPixelTrackingFieldsAreCachedByWebsite()
+    {
+        $helper = new TestableConfigHelper([]);
+
+        $expected = [
+            "pixel_tracking_status" => "pixel_tracking_status",
+            "pixel_tracking_updated_at" => "pixel_tracking_updated_at",
+            "pixel_tracking_source" => "pixel_tracking_source",
+            "pixel_tracking_policy_version" => "pixel_tracking_policy_version",
+        ];
+
+        $this->assertSame($expected, $helper->getCustomerPixelTrackingFields(8));
+        $this->assertSame($expected, $helper->getCustomerPixelTrackingFields(8));
+        $this->assertSame([8, 8, 8, 8], $helper->getRequestedScopes());
+    }
 }
 
 class TestableConfigHelper extends ConfigHelper

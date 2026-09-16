@@ -22,6 +22,10 @@ class ConfigHelper extends \Magento\Framework\App\Helper\AbstractHelper
     const XML_PATH_CLIENT_ID = "kiliba/connector/client_id";
     const XML_PATH_FLUX_TOKEN = "kiliba/connector/flux_token";
     const XML_PATH_LOG_LEVEL = "kiliba/connector/log_level";
+    const XML_PATH_CUSTOMER_PIXEL_TRACKING_STATUS_FIELD = "kiliba/connector/customer_pixel_tracking_status_field";
+    const XML_PATH_CUSTOMER_PIXEL_TRACKING_UPDATED_AT_FIELD = "kiliba/connector/customer_pixel_tracking_updated_at_field";
+    const XML_PATH_CUSTOMER_PIXEL_TRACKING_SOURCE_FIELD = "kiliba/connector/customer_pixel_tracking_source_field";
+    const XML_PATH_CUSTOMER_PIXEL_TRACKING_POLICY_VERSION_FIELD = "kiliba/connector/customer_pixel_tracking_policy_version_field";
 
     const XML_PATH_WEBHOOK_CART_ENABLED = "kiliba/connector/webhook_cart_enabled";
     const XML_PATH_WEBHOOK_ORDER_ENABLED = "kiliba/connector/webhook_order_enabled";
@@ -34,12 +38,20 @@ class ConfigHelper extends \Magento\Framework\App\Helper\AbstractHelper
     const CONFIG_NAME_LOG_LEVEL = "LOG_LEVEL";
     const CONFIG_NAME_WEBHOOK_CART_ENABLED = "WEBHOOK_CART_ENABLED";
     const CONFIG_NAME_WEBHOOK_ORDER_ENABLED = "WEBHOOK_ORDER_ENABLED";
+    const CONFIG_NAME_CUSTOMER_PIXEL_TRACKING_STATUS_FIELD = "KILIBA_CUSTOMER_PIXEL_TRACKING_STATUS_FIELD";
+    const CONFIG_NAME_CUSTOMER_PIXEL_TRACKING_UPDATED_AT_FIELD = "KILIBA_CUSTOMER_PIXEL_TRACKING_UPDATED_AT_FIELD";
+    const CONFIG_NAME_CUSTOMER_PIXEL_TRACKING_SOURCE_FIELD = "KILIBA_CUSTOMER_PIXEL_TRACKING_SOURCE_FIELD";
+    const CONFIG_NAME_CUSTOMER_PIXEL_TRACKING_POLICY_VERSION_FIELD = "KILIBA_CUSTOMER_PIXEL_TRACKING_POLICY_VERSION_FIELD";
 
     const CONFIG_MAPPING = [
         self::CONFIG_NAME_CLIENT_ID => self::XML_PATH_CLIENT_ID,
         self::CONFIG_NAME_LOG_LEVEL => self::XML_PATH_LOG_LEVEL,
         self::CONFIG_NAME_WEBHOOK_CART_ENABLED => self::XML_PATH_WEBHOOK_CART_ENABLED,
-        self::CONFIG_NAME_WEBHOOK_ORDER_ENABLED => self::XML_PATH_WEBHOOK_ORDER_ENABLED
+        self::CONFIG_NAME_WEBHOOK_ORDER_ENABLED => self::XML_PATH_WEBHOOK_ORDER_ENABLED,
+        self::CONFIG_NAME_CUSTOMER_PIXEL_TRACKING_STATUS_FIELD => self::XML_PATH_CUSTOMER_PIXEL_TRACKING_STATUS_FIELD,
+        self::CONFIG_NAME_CUSTOMER_PIXEL_TRACKING_UPDATED_AT_FIELD => self::XML_PATH_CUSTOMER_PIXEL_TRACKING_UPDATED_AT_FIELD,
+        self::CONFIG_NAME_CUSTOMER_PIXEL_TRACKING_SOURCE_FIELD => self::XML_PATH_CUSTOMER_PIXEL_TRACKING_SOURCE_FIELD,
+        self::CONFIG_NAME_CUSTOMER_PIXEL_TRACKING_POLICY_VERSION_FIELD => self::XML_PATH_CUSTOMER_PIXEL_TRACKING_POLICY_VERSION_FIELD
     ];
 
     const CONFIG_SCOPE = [
@@ -47,6 +59,10 @@ class ConfigHelper extends \Magento\Framework\App\Helper\AbstractHelper
         self::CONFIG_NAME_LOG_LEVEL => ScopeConfigInterface::SCOPE_TYPE_DEFAULT,
         self::CONFIG_NAME_WEBHOOK_CART_ENABLED => ScopeInterface::SCOPE_WEBSITES,
         self::CONFIG_NAME_WEBHOOK_ORDER_ENABLED => ScopeInterface::SCOPE_WEBSITES,
+        self::CONFIG_NAME_CUSTOMER_PIXEL_TRACKING_STATUS_FIELD => ScopeInterface::SCOPE_WEBSITES,
+        self::CONFIG_NAME_CUSTOMER_PIXEL_TRACKING_UPDATED_AT_FIELD => ScopeInterface::SCOPE_WEBSITES,
+        self::CONFIG_NAME_CUSTOMER_PIXEL_TRACKING_SOURCE_FIELD => ScopeInterface::SCOPE_WEBSITES,
+        self::CONFIG_NAME_CUSTOMER_PIXEL_TRACKING_POLICY_VERSION_FIELD => ScopeInterface::SCOPE_WEBSITES,
     ];
 
     const CONFIG_CHANGE_ALLOWED = [
@@ -54,6 +70,10 @@ class ConfigHelper extends \Magento\Framework\App\Helper\AbstractHelper
         self::CONFIG_NAME_LOG_LEVEL,
         self::CONFIG_NAME_WEBHOOK_CART_ENABLED,
         self::CONFIG_NAME_WEBHOOK_ORDER_ENABLED,
+        self::CONFIG_NAME_CUSTOMER_PIXEL_TRACKING_STATUS_FIELD,
+        self::CONFIG_NAME_CUSTOMER_PIXEL_TRACKING_UPDATED_AT_FIELD,
+        self::CONFIG_NAME_CUSTOMER_PIXEL_TRACKING_SOURCE_FIELD,
+        self::CONFIG_NAME_CUSTOMER_PIXEL_TRACKING_POLICY_VERSION_FIELD,
     ];
 
 
@@ -87,6 +107,11 @@ class ConfigHelper extends \Magento\Framework\App\Helper\AbstractHelper
      * @var string[]|null
      */
     protected $_clientId;
+
+    /**
+     * @var string[][]
+     */
+    protected $_customerPixelTrackingFields = [];
 
     /**
      * @var array
@@ -241,6 +266,37 @@ class ConfigHelper extends \Magento\Framework\App\Helper\AbstractHelper
             $this->_clientId[$websiteId] = $this->getConfigWithoutCache(self::XML_PATH_CLIENT_ID, $websiteId);
         }
         return $this->_clientId[$websiteId];
+    }
+
+    /**
+     * Resolve the customer attribute codes used to synchronize open-tracking state.
+     * Empty configuration values intentionally fall back to the shared CMS contract.
+     *
+     * @param int $websiteId
+     * @return string[]
+     */
+    public function getCustomerPixelTrackingFields($websiteId)
+    {
+        if (isset($this->_customerPixelTrackingFields[$websiteId])) {
+            return $this->_customerPixelTrackingFields[$websiteId];
+        }
+
+        $fields = [
+            "pixel_tracking_status" => [self::XML_PATH_CUSTOMER_PIXEL_TRACKING_STATUS_FIELD, "pixel_tracking_status"],
+            "pixel_tracking_updated_at" => [self::XML_PATH_CUSTOMER_PIXEL_TRACKING_UPDATED_AT_FIELD, "pixel_tracking_updated_at"],
+            "pixel_tracking_source" => [self::XML_PATH_CUSTOMER_PIXEL_TRACKING_SOURCE_FIELD, "pixel_tracking_source"],
+            "pixel_tracking_policy_version" => [self::XML_PATH_CUSTOMER_PIXEL_TRACKING_POLICY_VERSION_FIELD, "pixel_tracking_policy_version"],
+        ];
+
+        $resolvedFields = [];
+        foreach ($fields as $payloadField => $configuration) {
+            $configuredField = trim((string)$this->getConfigWithoutCache($configuration[0], $websiteId));
+            $field = $configuredField === "" ? $configuration[1] : $configuredField;
+            $resolvedFields[$payloadField] = preg_match("/^[a-zA-Z0-9_]+$/", $field) ? $field : null;
+        }
+
+        $this->_customerPixelTrackingFields[$websiteId] = $resolvedFields;
+        return $this->_customerPixelTrackingFields[$websiteId];
     }
 
 

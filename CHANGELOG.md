@@ -1,6 +1,10 @@
 # Changelog
 All notable changes to this project will be documented in this file.
 
+## [2.8.24] - 15/09/2026
+- Add configurable Magento customer attribute mappings for email open-tracking status, timestamp, source and policy version.
+- Expose open-tracking values in customer and guest newsletter pulls, and add an authenticated API endpoint to update compatible customer attributes and newsletter columns.
+
 ## [2.8.23] - 11/09/2026
 - Normalize Magento product image paths to prevent placeholder images in product recommendations and abandoned-cart emails when the catalog path has no leading slash.
 

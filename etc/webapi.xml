@@ -28,6 +28,12 @@
             <resource ref="anonymous" />
         </resources>
     </route>
+    <route url="/V1/kiliba-connector/setCustomerEmailOpenTracking/" method="POST">
+        <service class="Kiliba\Connector\Api\Module\EmailOpenTrackingInterface" method="setCustomerEmailOpenTracking"/>
+        <resources>
+            <resource ref="anonymous" />
+        </resources>
+    </route>
 
     <route url="/V1/kiliba-connector/getLog/" method="POST">
         <service class="Kiliba\Connector\Api\Module\LogInterface" method="getLogs"/>

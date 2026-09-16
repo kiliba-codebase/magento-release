@@ -28,6 +28,22 @@
                     <frontend_model>Kiliba\Connector\Block\Adminhtml\ReadonlyField</frontend_model>
                     <backend_model>Kiliba\Connector\Model\Config\Backend\ReadonlyConfig</backend_model>
                 </field>
+                <field id="customer_pixel_tracking_status_field" translate="label comment" type="text" sortOrder="40" showInDefault="0" showInWebsite="1" showInStore="0">
+                    <label>Open-tracking status customer attribute</label>
+                    <comment>Defaults to pixel_tracking_status. Accepted values are unknown, legacy_not_opposed, consented, refused and withdrawn.</comment>
+                </field>
+                <field id="customer_pixel_tracking_updated_at_field" translate="label comment" type="text" sortOrder="50" showInDefault="0" showInWebsite="1" showInStore="0">
+                    <label>Open-tracking updated-at customer attribute</label>
+                    <comment>Defaults to pixel_tracking_updated_at.</comment>
+                </field>
+                <field id="customer_pixel_tracking_source_field" translate="label comment" type="text" sortOrder="60" showInDefault="0" showInWebsite="1" showInStore="0">
+                    <label>Open-tracking source customer attribute</label>
+                    <comment>Defaults to pixel_tracking_source.</comment>
+                </field>
+                <field id="customer_pixel_tracking_policy_version_field" translate="label comment" type="text" sortOrder="70" showInDefault="0" showInWebsite="1" showInStore="0">
+                    <label>Open-tracking policy-version customer attribute</label>
+                    <comment>Defaults to pixel_tracking_policy_version.</comment>
+                </field>
             </group>
         </section>
     </system>

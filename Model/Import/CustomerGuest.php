@@ -121,6 +121,10 @@ class CustomerGuest extends AbstractModel
                 "confirm_code" => (string)$subscriber->getSubscriberConfirmCode(),
                 "source" => (string)$subscriber->getSubscriberSource(),
                 "ip" => (string)$subscriber->getSubscriberIp(),
+                "pixel_tracking_status" => $this->getNullableSubscriberValue($subscriber, "pixel_tracking_status"),
+                "pixel_tracking_updated_at" => $this->getNullableSubscriberValue($subscriber, "pixel_tracking_updated_at"),
+                "pixel_tracking_source" => $this->getNullableSubscriberValue($subscriber, "pixel_tracking_source"),
+                "pixel_tracking_policy_version" => $this->getNullableSubscriberValue($subscriber, "pixel_tracking_policy_version"),
             ];
         } catch (\Exception $e) {
             $this->_kilibaLogger->addLog(
@@ -131,6 +135,23 @@ class CustomerGuest extends AbstractModel
             );
             return ["error" => $e->getMessage()];
         }
+    }
+
+    /**
+     * Optional newsletter columns are installed by the merchant integration, not by Kiliba.
+     *
+     * @param Subscriber $subscriber
+     * @param string $field
+     * @return string|null
+     */
+    protected function getNullableSubscriberValue(Subscriber $subscriber, $field)
+    {
+        $value = $subscriber->getData($field);
+        if ($value === null || trim((string)$value) === "") {
+            return null;
+        }
+
+        return trim((string)$value);
     }
 
     /**

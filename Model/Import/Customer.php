@@ -152,6 +152,10 @@ class Customer extends AbstractModel
                 "id_groups" => (string)$customer->getGroupId(), // no several group in magento
                 "addresses" => $addressData,
             ];
+
+            foreach ($this->_configHelper->getCustomerPixelTrackingFields($websiteId) as $payloadField => $attributeCode) {
+                $data[$payloadField] = $this->getNullableCustomAttributeValue($customer, $attributeCode);
+            }
             return $data;
         } catch (\Exception $e) {
             $this->_kilibaLogger->addLog(
@@ -189,9 +193,39 @@ class Customer extends AbstractModel
             "id_default_group" => "",
             "id_groups" => "",
             "addresses" => [],
+            "pixel_tracking_status" => null,
+            "pixel_tracking_updated_at" => null,
+            "pixel_tracking_source" => null,
+            "pixel_tracking_policy_version" => null,
         ];
 
         return $data;
+    }
+
+    /**
+     * Read a configured Magento customer attribute without treating an empty value as consent.
+     *
+     * @param \Magento\Customer\Api\Data\CustomerInterface $customer
+     * @param string|null $attributeCode
+     * @return string|null
+     */
+    protected function getNullableCustomAttributeValue($customer, $attributeCode)
+    {
+        if ($attributeCode === null) {
+            return null;
+        }
+
+        $attribute = $customer->getCustomAttribute($attributeCode);
+        if ($attribute === null) {
+            return null;
+        }
+
+        $value = $attribute->getValue();
+        if ($value === null || trim((string)$value) === "") {
+            return null;
+        }
+
+        return trim((string)$value);
     }
 
     /**
@@ -300,6 +334,26 @@ class Customer extends AbstractModel
                 [
                     "name" => "id_groups",
                     "type" => "string"
+                ],
+                [
+                    "name" => "pixel_tracking_status",
+                    "type" => ["null", "string"],
+                    "default" => null
+                ],
+                [
+                    "name" => "pixel_tracking_updated_at",
+                    "type" => ["null", "string"],
+                    "default" => null
+                ],
+                [
+                    "name" => "pixel_tracking_source",
+                    "type" => ["null", "string"],
+                    "default" => null
+                ],
+                [
+                    "name" => "pixel_tracking_policy_version",
+                    "type" => ["null", "string"],
+                    "default" => null
                 ],
                 [
                     "name" => "addresses",

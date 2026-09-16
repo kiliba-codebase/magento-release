@@ -1,8 +1,8 @@
 {
   "name": "kiliba/module-connector",
-  "description": "Kiliba",
+  "description": "Magento 2 connector for Kiliba marketing automation, catalog synchronization, customer tracking and storefront events",
   "type": "magento2-module",
-  "version": "2.8.23",
+  "version": "2.8.24",
   "license": "OSL-3.0",
   "require": {
     "php": ">=7.0.2",
