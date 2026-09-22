@@ -1,4 +1,8 @@
 # Changelog
+
+## [2.8.25] - 22/09/2026
+
+- Add responsive pop-up positioning, overlay form alignment and image focal-point support through `@kiliba-codebase/cms-popup` `1.0.54`.
 All notable changes to this project will be documented in this file.
 
 ## [2.8.24] - 15/09/2026
