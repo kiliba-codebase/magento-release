@@ -1,5 +1,9 @@
 # Changelog
 
+## [2.8.26] - 23/09/2026
+
+- Display optional promotional legal notices through `@kiliba-codebase/cms-popup` `1.0.56`.
+
 ## [2.8.25] - 22/09/2026
 
 - Add responsive pop-up positioning, overlay form alignment and image focal-point support through `@kiliba-codebase/cms-popup` `1.0.54`.
