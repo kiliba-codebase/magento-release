@@ -149,12 +149,6 @@ class Popup extends AbstractApiAction implements PopupInterface
 
             // Validate activation: must be > 0 and less than current time
             $currentTime = time();
-            if ($popupActivation <= 0 || $popupActivation > $currentTime) {
-                return [[
-                    "success" => false,
-                    "message" => "Popup is not active"
-                ]];
-            }
 
             // Get popup configuration
             $popupConfig = $this->_configHelper->getConfigWithoutCache(
@@ -164,6 +158,8 @@ class Popup extends AbstractApiAction implements PopupInterface
 
             if ($popupConfig) {
                 $popupConfig = json_decode($popupConfig, true);
+                $popupConfig = $this->filterCampaignsByActivation($popupConfig, $popupActivation);
+                if (!$popupConfig) return [["success" => false, "message" => "Popup is not active"]];
 
                 if (isset($popupConfig["version"]) && intval($popupConfig["version"]) === 2) {
                     $popupConfig = $this->filterCampaignsByResolvedAudience($popupConfig, $websiteId);
@@ -177,6 +173,11 @@ class Popup extends AbstractApiAction implements PopupInterface
                         "success" => true,
                         "configuration" => $this->hidePopupPrivateConfiguration($popupConfig)
                     ]];
+                }
+
+                // Historical popups retain their separate activation date.
+                if ($popupActivation <= 0 || $popupActivation > $currentTime) {
+                    return [["success" => false, "message" => "Popup is not active"]];
                 }
 
                 // Hide captcha secret key from frontend
@@ -332,7 +333,9 @@ class Popup extends AbstractApiAction implements PopupInterface
                 $websiteId
             );
 
-            if (!$popupActivationDate || intval($popupActivationDate) > time()) {
+            $activationConfiguration = json_decode($this->_configHelper->getConfigWithoutCache($configurationConfigKey, $websiteId), true);
+            $activationConfiguration = $this->filterCampaignsByActivation($activationConfiguration, $popupActivationDate);
+            if (!$activationConfiguration) {
                 $this->logRegistrationFailure($email, "Popup disabled");
                 sleep(2);
                 return $this->jsonResponse(400, "POPUP_UNAVAILABLE");
@@ -360,11 +363,7 @@ class Popup extends AbstractApiAction implements PopupInterface
             }
 
             // Get popup configuration
-            $popupConfigJson = $this->_configHelper->getConfigWithoutCache(
-                $configurationConfigKey,
-                $websiteId
-            );
-            $popupConfiguration = json_decode($popupConfigJson, true);
+            $popupConfiguration = $activationConfiguration;
             $campaignId = (string)($this->_request->getParam('campaignId') ?: '');
             $popupEffectiveConfiguration = $this->getCampaignSubmissionConfiguration($popupConfiguration, $campaignId);
             if (!$popupEffectiveConfiguration) {
@@ -1163,12 +1162,32 @@ class Popup extends AbstractApiAction implements PopupInterface
         return true;
     }
 
+    private function filterCampaignsByActivation($configuration, $activationDate)
+    {
+        if ($activationDate && intval($activationDate) <= time()) return $configuration;
+        // Native V2 and legacy retain their scenario gate on GET and submission.
+        if (!isset($configuration['version']) || intval($configuration['version']) !== 2 || empty($configuration['campaigns'])) return null;
+        $configuration['campaigns'] = array_values(array_filter($configuration['campaigns'], function ($campaign) {
+            return isset($campaign['htmlDesign']['version']) && intval($campaign['htmlDesign']['version']) === 1;
+        }));
+        return empty($configuration['campaigns']) ? null : $configuration;
+    }
+
     private function filterCampaignsByResolvedAudience($configuration, $websiteId)
     {
         if (!is_array($configuration) || !isset($configuration["version"]) || intval($configuration["version"]) !== 2 || !isset($configuration["campaigns"]) || !is_array($configuration["campaigns"])) {
             return $configuration;
         }
 
+        // Evaluate on every public read, including campaigns without advanced targeting.
+        $now = time();
+        $configuration["campaigns"] = array_values(array_filter($configuration["campaigns"], function ($campaign) use ($now) {
+            if (!isset($campaign["status"]) || $campaign["status"] !== "active") return false;
+            $deadline = !empty($campaign["endsAt"]) ? strtotime($campaign["endsAt"]) : false;
+            return $deadline === false || $deadline > $now;
+        }));
+
+        if (empty($configuration["campaigns"])) return null;
         $activeAdvancedCampaigns = [];
         foreach ($configuration["campaigns"] as $campaign) {
             if (

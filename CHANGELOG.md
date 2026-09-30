@@ -1,5 +1,10 @@
 # Changelog
 
+## [2.8.27] - 29/09/2026
+
+- Add pop-up visual presets, HTML compositions, native countdowns, sizes, animations, automatic closing and end dates through `@kiliba-codebase/cms-popup` `1.0.61`.
+- Preserve historical pop-up activation dates and fonts; support Studio positioning and managed form edits.
+
 ## [2.8.26] - 23/09/2026
 
 - Display optional promotional legal notices through `@kiliba-codebase/cms-popup` `1.0.56`.
