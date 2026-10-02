@@ -1,5 +1,10 @@
 # Changelog
 
+## [2.8.28] - 02/10/2026
+
+- Add the Magento Web Push storefront runtime, including the permission prompt, iOS installation path and subscription lifecycle.
+- Proxy authenticated subscriptions and interaction tracking through website-scoped Magento routes without exposing Kiliba credentials.
+
 ## [2.8.27] - 29/09/2026
 
 - Add pop-up visual presets, HTML compositions, native countdowns, sizes, animations, automatic closing and end dates through `@kiliba-codebase/cms-popup` `1.0.61`.

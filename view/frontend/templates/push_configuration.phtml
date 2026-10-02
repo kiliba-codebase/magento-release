@@ -1,0 +1,16 @@
+<?php
+/** @var \Kiliba\Connector\Block\PushConfiguration $block */
+$settings = $block->getPushSettings();
+if ($settings === null) {
+    return;
+}
+$pushRuntimeUrl = $block->getViewFileUrl("Kiliba_Connector::js/push.js");
+?>
+<script>
+    window.kpushendpoint = <?= /* @noEscape */ json_encode($settings["endpoint"], JSON_HEX_TAG | JSON_HEX_AMP) ?>;
+    window.kpushconfigurl = <?= /* @noEscape */ json_encode($settings["configurationUrl"], JSON_HEX_TAG | JSON_HEX_AMP) ?>;
+    window.kpushlocale = <?= /* @noEscape */ json_encode($settings["locale"], JSON_HEX_TAG | JSON_HEX_AMP) ?>;
+    window.kpushnamespace = <?= /* @noEscape */ json_encode($settings["namespace"], JSON_HEX_TAG | JSON_HEX_AMP) ?>;
+    window.kpushscope = <?= /* @noEscape */ json_encode($settings["scope"], JSON_HEX_TAG | JSON_HEX_AMP) ?>;
+</script>
+<script src="<?= $block->escapeUrl($pushRuntimeUrl) ?>" defer></script>
