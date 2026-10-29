@@ -1,5 +1,9 @@
 # Changelog
 
+## [2.8.29] - 29/10/2026
+
+- Support custom HTML confirmation screens created in Kiliba Popup Studio through `@kiliba-codebase/cms-popup` `1.0.67`.
+
 ## [2.8.28] - 02/10/2026
 
 - Add the Magento Web Push storefront runtime, including the permission prompt, iOS installation path and subscription lifecycle.
