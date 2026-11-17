@@ -322,6 +322,40 @@ class InstallSchema implements \Magento\Framework\Setup\InstallSchemaInterface {
                     
                 $installer->getConnection()->createTable($table);
             }
+
+            // Fresh installs on Magento 2.2 do not apply declarative schema.
+            if (!$installer->tableExists('kiliba_connector_popup_configuration')) {
+                $table = $installer->getConnection()->newTable($installer->getTable('kiliba_connector_popup_configuration'))
+                    ->addColumn('configuration_id', \Magento\Framework\DB\Ddl\Table::TYPE_INTEGER, null, [
+                        'identity' => true,
+                        'nullable' => false,
+                        'primary' => true,
+                        'unsigned' => true,
+                    ], 'Configuration ID')
+                    ->addColumn('website_id', \Magento\Framework\DB\Ddl\Table::TYPE_SMALLINT, null, [
+                        'nullable' => false,
+                        'unsigned' => true,
+                    ], 'Website ID')
+                    ->addColumn('config_path', \Magento\Framework\DB\Ddl\Table::TYPE_TEXT, 191, [
+                        'nullable' => false,
+                    ], 'Popup configuration path')
+                    ->addColumn('value', \Magento\Framework\DB\Ddl\Table::TYPE_TEXT, '4G', [
+                        'nullable' => false,
+                    ], 'Complete popup JSON')
+                    ->addIndex(
+                        $installer->getIdxName('kiliba_connector_popup_configuration', ['website_id', 'config_path'], \Magento\Framework\DB\Adapter\AdapterInterface::INDEX_TYPE_UNIQUE),
+                        ['website_id', 'config_path'],
+                        ['type' => \Magento\Framework\DB\Adapter\AdapterInterface::INDEX_TYPE_UNIQUE]
+                    )
+                    ->addForeignKey(
+                        $installer->getFkName('kiliba_connector_popup_configuration', 'website_id', 'store_website', 'website_id'),
+                        'website_id',
+                        $installer->getTable('store_website'),
+                        'website_id',
+                        \Magento\Framework\DB\Ddl\Table::ACTION_CASCADE
+                    );
+                $installer->getConnection()->createTable($table);
+            }
         }
 
         $installer->endSetup();

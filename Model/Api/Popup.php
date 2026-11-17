@@ -11,6 +11,7 @@ use Kiliba\Connector\Helper\KilibaLogger;
 use Kiliba\Connector\Helper\KilibaCaller;
 use Kiliba\Connector\Helper\CustomerHelper;
 use Kiliba\Connector\Model\PopupCustomerFactory;
+use Kiliba\Connector\Model\PopupConfigurationStorage;
 use Kiliba\Connector\Model\ResourceModel\PopupCustomer as PopupCustomerResource;
 use Magento\Framework\App\RequestInterface;
 use Magento\Framework\App\ResourceConnection;
@@ -70,6 +71,11 @@ class Popup extends AbstractApiAction implements PopupInterface
     protected $currentCustomer;
 
     /**
+     * @var PopupConfigurationStorage
+     */
+    protected $popupConfigurationStorage;
+
+    /**
      * @param RequestInterface $request
      * @param ResourceConnection $resourceConnection
      * @param ConfigHelper $configHelper
@@ -85,6 +91,7 @@ class Popup extends AbstractApiAction implements PopupInterface
      * @param StoreManagerInterface $storeManager
      * @param Resolver $localeResolver
      * @param CurrentCustomer $currentCustomer
+     * @param PopupConfigurationStorage $popupConfigurationStorage
      */
     public function __construct(
         RequestInterface $request,
@@ -101,7 +108,8 @@ class Popup extends AbstractApiAction implements PopupInterface
         SerializerInterface $serializer,
         StoreManagerInterface $storeManager,
         Resolver $localeResolver,
-        CurrentCustomer $currentCustomer
+        CurrentCustomer $currentCustomer,
+        PopupConfigurationStorage $popupConfigurationStorage
     ) {
         parent::__construct($request, $resourceConnection, $configHelper, $kilibaLogger, $visitManager, $deletedItemManager);
         $this->kilibaCaller = $kilibaCaller;
@@ -113,6 +121,7 @@ class Popup extends AbstractApiAction implements PopupInterface
         $this->storeManager = $storeManager;
         $this->localeResolver = $localeResolver;
         $this->currentCustomer = $currentCustomer;
+        $this->popupConfigurationStorage = $popupConfigurationStorage;
     }
 
     /**
@@ -151,7 +160,7 @@ class Popup extends AbstractApiAction implements PopupInterface
             $currentTime = time();
 
             // Get popup configuration
-            $popupConfig = $this->_configHelper->getConfigWithoutCache(
+            $popupConfig = $this->popupConfigurationStorage->get(
                 $configurationConfigKey,
                 $websiteId
             );
@@ -333,7 +342,7 @@ class Popup extends AbstractApiAction implements PopupInterface
                 $websiteId
             );
 
-            $activationConfiguration = json_decode($this->_configHelper->getConfigWithoutCache($configurationConfigKey, $websiteId), true);
+            $activationConfiguration = json_decode($this->popupConfigurationStorage->get($configurationConfigKey, $websiteId), true);
             $activationConfiguration = $this->filterCampaignsByActivation($activationConfiguration, $popupActivationDate);
             if (!$activationConfiguration) {
                 $this->logRegistrationFailure($email, "Popup disabled");
@@ -1339,11 +1348,12 @@ class Popup extends AbstractApiAction implements PopupInterface
             );
         }
 
-        $this->_configHelper->saveDataToCoreConfig(
-            $configKey,
-            $popupConfig,
-            $websiteId
-        );
+        if (!$this->popupConfigurationStorage->set($configKey, $popupConfig, $websiteId)) {
+            return array(array(
+                "success" => false,
+                "message" => "Popup configuration could not be stored completely"
+            ));
+        }
 
         return array(
             array( "success" => true )

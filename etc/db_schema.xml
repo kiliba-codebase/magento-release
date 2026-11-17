@@ -82,4 +82,21 @@
             <column name="campaign_id"/>
         </index>
     </table>
+
+    <table name="kiliba_connector_popup_configuration" resource="default" engine="innodb" comment="Kiliba popup configuration per website">
+        <column xsi:type="int" name="configuration_id" padding="10" unsigned="true" nullable="false" identity="true" comment="Configuration ID"/>
+        <column xsi:type="smallint" name="website_id" unsigned="true" nullable="false" comment="Website ID"/>
+        <column xsi:type="varchar" name="config_path" length="191" nullable="false" comment="Popup configuration path"/>
+        <column xsi:type="longtext" name="value" nullable="false" comment="Complete popup JSON"/>
+        <constraint xsi:type="primary" referenceId="PRIMARY">
+            <column name="configuration_id"/>
+        </constraint>
+        <constraint xsi:type="unique" referenceId="KILIBA_CONNECTOR_POPUP_CONFIGURATION_WEBSITE_PATH">
+            <column name="website_id"/>
+            <column name="config_path"/>
+        </constraint>
+        <constraint xsi:type="foreign" referenceId="KILIBA_CONNECTOR_POPUP_CONFIGURATION_WEBSITE_ID_STORE_WEBSITE_WEBSITE_ID"
+                    table="kiliba_connector_popup_configuration" column="website_id" referenceTable="store_website" referenceColumn="website_id"
+                    onDelete="CASCADE"/>
+    </table>
 </schema>

@@ -215,6 +215,41 @@ class UpgradeSchema implements UpgradeSchemaInterface
                 );
             }
         }
+
+        // Magento versions before declarative schema still need the module-owned
+        // LONGTEXT table. Do not alter Magento's core_config_data schema.
+        if (version_compare($context->getVersion(), '2.8.30', '<') && !$installer->tableExists('kiliba_connector_popup_configuration')) {
+            $table = $installer->getConnection()->newTable($installer->getTable('kiliba_connector_popup_configuration'))
+                ->addColumn('configuration_id', Table::TYPE_INTEGER, null, [
+                    'identity' => true,
+                    'nullable' => false,
+                    'primary' => true,
+                    'unsigned' => true,
+                ], 'Configuration ID')
+                ->addColumn('website_id', Table::TYPE_SMALLINT, null, [
+                    'nullable' => false,
+                    'unsigned' => true,
+                ], 'Website ID')
+                ->addColumn('config_path', Table::TYPE_TEXT, 191, [
+                    'nullable' => false,
+                ], 'Popup configuration path')
+                ->addColumn('value', Table::TYPE_TEXT, '4G', [
+                    'nullable' => false,
+                ], 'Complete popup JSON')
+                ->addIndex(
+                    $installer->getIdxName('kiliba_connector_popup_configuration', ['website_id', 'config_path'], \Magento\Framework\DB\Adapter\AdapterInterface::INDEX_TYPE_UNIQUE),
+                    ['website_id', 'config_path'],
+                    ['type' => \Magento\Framework\DB\Adapter\AdapterInterface::INDEX_TYPE_UNIQUE]
+                )
+                ->addForeignKey(
+                    $installer->getFkName('kiliba_connector_popup_configuration', 'website_id', 'store_website', 'website_id'),
+                    'website_id',
+                    $installer->getTable('store_website'),
+                    'website_id',
+                    Table::ACTION_CASCADE
+                );
+            $installer->getConnection()->createTable($table);
+        }
         
         $setup->endSetup();
     }

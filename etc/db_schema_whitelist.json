@@ -67,5 +67,18 @@
         "index": {
             "KILIBA_CONNECTOR_POPUP_CUSTOMERS_EMAIL_POPUP_TYPE": true
         }
+    },
+    "kiliba_connector_popup_configuration": {
+        "column": {
+            "configuration_id": true,
+            "website_id": true,
+            "config_path": true,
+            "value": true
+        },
+        "constraint": {
+            "PRIMARY": true,
+            "KILIBA_CONNECTOR_POPUP_CONFIGURATION_WEBSITE_PATH": true,
+            "KILIBA_CONNECTOR_POPUP_CONFIGURATION_WEBSITE_ID_STORE_WEBSITE_WEBSITE_ID": true
+        }
     }
 }

@@ -33,6 +33,8 @@ Les échanges attendus par Kiliba sont couverts par les appels suivants :
   - Activation : `POST /rest/all/V1/kiliba-connector/popup/{popupType}/activation` prend `token`, `accountId`, `activation` (timestamp Unix ou `0`) et retourne `success: true`.
   - Upload d’image : `POST /rest/all/V1/kiliba-connector/uploadImage` accepte soit un champ multipart `image`, soit un champ `image` en base64 (optionnellement accompagné d’un `mimeType`) et répond avec `success: true` et `relative_path` vers le fichier stocké.
 
+Depuis la version 2.8.30, `setup:upgrade` crée `kiliba_connector_popup_configuration` avec une valeur `LONGTEXT` par website et type de popup. Le module lit encore l’ancienne valeur de `core_config_data` tant que la nouvelle table ne contient pas de configuration pour ce website. La synchronisation suivante doit publier une configuration valide dans la nouvelle table ; une écriture incomplète est refusée et la valeur précédente est conservée. Une mise à jour du module seule ne répare donc pas une ancienne valeur déjà tronquée : il faut aussi relancer la synchronisation, puis vérifier la réponse de lecture de la popup et une inscription de test.
+
 ## Suivi des ouvertures des emails
 
 Le connecteur `2.8.24` ou supérieur peut synchroniser la décision de suivi des ouvertures stockée par Magento. Cette information est distincte de l’abonnement newsletter et du consentement à recevoir des communications marketing.
